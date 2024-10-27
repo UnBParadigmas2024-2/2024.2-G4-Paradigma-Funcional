@@ -1,31 +1,22 @@
-# RepositorioTemplate
-Esse repositório é para ser utilizado pelos grupos como um template inicial, da home page do Projeto.
-As seções do Template NÃO DEVEM SER OMITIDAS, sendo TODAS RELEVANTES.
-
-**!! *Atenção: Renomeie o seu repositório para (Ano.Semestre)_(Grupo)_(Paradigma)_(NomeDoProjeto)*. !!** 
-
-Paradigmas:
- - Funcional
- - Logico
- - SMA
-
-**!! *Não coloque os nomes dos alunos no título do repositório*. !!**
-
-**!! *Exemplo de título correto: 2023.2_G1_Logico_ProjetoRoteirosAereos*. !!**
- 
- (Apague esses comentários)
-
 # NomeDoProjeto
 
 **Disciplina**: FGA0210 - PARADIGMAS DE PROGRAMAÇÃO - T01 <br>
-**Nro do Grupo (de acordo com a Planilha de Divisão dos Grupos)**: XX<br>
-**Paradigma**: XXXXXXXXXX<br>
+**Nro do Grupo (de acordo com a Planilha de Divisão dos Grupos)**: 4<br>
+**Paradigma**: Funcional<br>
 
 ## Alunos
 |Matrícula | Aluno |
-| -- | -- |
-| xx/xxxxxx  |  xxxx xxxx xxxxx |
-| xx/xxxxxx  |  xxxx xxxx xxxxx |
+| :--: | :--: |
+| 20/2045624 | Abdul hannan	|
+| 21/1029147 | Arthur de Melo Viana	|
+| 19/0026758 | Deivid Carvalho |	
+| 21/1062867 | Felipe de Jesus Rodrigues |
+| 17/0108341 | Levi de Oliveira Queiroz |	
+| 17/0111059 | Matheus Fonseca Sousa |	
+| 19/0093331 | Matheus Costa Gomes |	
+| 21/2005444 | Pedro fonseca Cruz	|
+| 21/1029559 | [Rafael Brito Bosi Rodrigues](https://github.com/StrangeUnit28) |	
+| 16/0149410 | Yudi Yamane de Azevedo	| 
 
 ## Sobre 
 Descreva o seu projeto em linhas gerais. 
