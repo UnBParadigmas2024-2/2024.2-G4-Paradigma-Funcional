@@ -2,6 +2,9 @@
 module Main where
 
 
+-- Assets do campo minado
+-- https://github.com/BrandonDusseau/minesweeper-classic
+
 import Paths_CampoMinado (getDataFileName)
 import Raylib.Core (clearBackground)
 import Raylib.Core.Text (drawText)
@@ -18,7 +21,7 @@ import Raylib.Util (drawing, textureMode, whileWindowOpen0, withWindow, managed)
 import Raylib.Util.Colors (black, lightGray, orange, white)
 
 logoPath :: String
-logoPath = "assets/raylib-logo.png"
+logoPath = "assets/sprite.gif"
 
 main :: IO ()
 main = do
@@ -44,8 +47,9 @@ main = do
 
                   clearBackground white
                   drawTexture texture 0 0 orange
-                  drawTexturePro (renderTexture'texture rt) (Rectangle 0 0 200 (-200)) (Rectangle 50 50 300 300) (Vector2 0 0) 0 white
-                  drawTexturePro logo (Rectangle 0 0 256 256) (Rectangle 375 50 175 175) (Vector2 0 0) 0 white
+                  -- drawTexturePro (renderTexture'texture rt) (Rectangle 0 0 200 (-200)) (Rectangle 50 50 300 300) (Vector2 0 0) 0 white
+                  drawTexturePro logo (Rectangle 0 0 132 101) (Rectangle 0 0 (132*2) (101*2)) (Vector2 0 0) 0 white
+                  -- drawTexturePro logo (Rectangle (11*4) 0 (11) (21)) (Rectangle 0 0 (11*2) (21*2)) (Vector2 0 0) 0 white
               )
           )
     )
