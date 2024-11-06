@@ -44,11 +44,16 @@
      - `Int`: Tamanho do tabuleiro.
      - `Coord`: Coordenada inicial da célula a ser explorada.
      - `Int`: Contagem atual de células abertas.
-     - `Int`: Contagem necessária para vitória.
+     - `Int`: Contagem necessária para vencer o jogo.
    - **Saída:**
-     - `(Bool, Int, Grid)`: Booleano indicando se o jogo continua, nova contagem de células abertas e o tabuleiro atualizado.
-   - **Funções Chave:**
-     - `bfs :: Grid -> Int -> Coord -> Int -> Int -> IO (Bool, Int, Grid)`: Lógica de busca em largura para revelar células e verificar o estado do jogo.
+     - `(Bool, Int, Grid)`: Booleano indicando se o jogo continua (`True` ou `False`), a nova contagem de células abertas e o tabuleiro atualizado.
+   - **Função Chave:**
+     - `bfs :: Grid -> Int -> Coord -> Int -> Int -> IO (Bool, Int, Grid)`: Inicia a busca em largura a partir da célula fornecida, explorando as células vizinhas e atualizando o estado do jogo. Retorna o estado do jogo (continua ou termina), a nova contagem de células abertas e o tabuleiro atualizado.
+     - **Processo:**
+       - Se a célula atual for uma bomba, o jogo termina com derrota.
+       - Se o número de células abertas atingir o limite necessário para vencer, o jogo termina com vitória.
+       - Se a célula for um número (diferente de zero), a busca não expande para células adjacentes.
+       - Se a célula for vazia, a fila de busca é expandida para incluir as células adjacentes não visitadas.
 
 3. **Node (Células)**
    - **Estrutura:**
@@ -122,11 +127,20 @@
      - `Int`: Tamanho do tabuleiro.
      - `Coord`: Coordenada inicial da célula a ser explorada.
      - `Int`: Contagem atual de células abertas.
-     - `Int`: Contagem necessária para vitória.
+     - `Int`: Contagem necessária para vencer o jogo.
    - **Saída:**
-     - `(Bool, Int, Grid)`: Booleano indicando se o jogo continua, nova contagem de células abertas e o tabuleiro atualizado.
-   - **Funções Chave:**
-     - `bfs :: Grid -> Int -> Coord -> Int -> Int -> IO (Bool, Int, Grid)`: Lógica de busca em largura para revelar células e verificar o estado do jogo.
+     - `(Bool, Int, Grid)`: Booleano indicando se o jogo continua (`True` ou `False`), a nova contagem de células abertas e o tabuleiro atualizado.
+   - **Função Chave:**
+     - `bfs :: Grid -> Int -> Coord -> Int -> Int -> IO (Bool, Int, Grid)`: Inicia a busca em largura a partir da célula fornecida, explorando as células vizinhas e atualizando o estado do jogo. Retorna o estado do jogo (continua ou termina), a nova contagem de células abertas e o tabuleiro atualizado.
+
+   - **Descrição Detalhada:**
+     A função `bfs` implementa a lógica de busca em largura para explorar o tabuleiro de campo minado. A partir de uma célula inicial fornecida pelo usuário ou pelo bot, a função explora as células vizinhas (não visitadas e não bombas), revelando-as e verificando se o jogo termina em vitória ou derrota.
+
+     - **Processo:**
+       - Se a célula atual for uma bomba, o jogo termina com derrota.
+       - Se o número de células abertas atingir o limite necessário para vencer, o jogo termina com vitória.
+       - Se a célula for um número (diferente de zero), a busca não expande para células adjacentes.
+       - Se a célula for vazia, a fila de busca é expandida para incluir as células adjacentes não visitadas.
 
    **Exemplos de Uso:**
    - **Revelar Célula e Verificar Jogo**
@@ -141,6 +155,13 @@
              else putStrLn "Você perdeu!"
          printGrid updatedGrid
      ```
+
+     **Descrição do Exemplo:**
+     - Neste exemplo, o tabuleiro é gerado com `generateGrid` e as bombas são aleatoriamente distribuídas.
+     - A célula (5, 5) é a célula inicial explorada pela função `bfs`.
+     - O contador de células abertas começa em `0`, e o número necessário para vitória é calculado como `100 - countBombs` (onde 100 representa o número total de células do tabuleiro, considerando o exemplo de tamanho 10x10).
+     - O resultado da busca é avaliado: se `result` for `True`, significa que o jogo continua; caso contrário, o jogo foi perdido por ter atingido uma bomba.
+     - Após a execução, o tabuleiro atualizado é impresso.
 
 3. **Node (Células)**
    - **Estrutura:**

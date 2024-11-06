@@ -32,24 +32,24 @@ gameLoop :: Grid -> Int -> Int -> Int -> Int -> IO ()
 gameLoop grid size cnt win cntBombs = do
     -- Exibe o número de bombas antes de cada movimento
     putStrLn $ "Number of bombs: " ++ show cntBombs
-    
-    -- Exibe o grid
     printGrid grid
-    putStrLn "Enter your move \"rol col\" (1/n 1/n):"
+    putStrLn "Enter your move \"row col\" (1/n 1/n):"
     move <- getLine
     let [row, col] = map (\x -> read x - 1) (words move) :: [Int]
+    let initialQueue = [(row, col)]  -- A fila começa com a coordenada inicial
     (res, newCnt, newGrid) <- bfs grid size (row, col) cnt win
-    if newCnt == win
-       then do
-           printGrid newGrid
-           putStrLn "W"
-       else if not res
-               then do
-                   let finalGrid = revealBombs newGrid -- Revela as bombas no grid final
-                   printGrid finalGrid
-                   putStrLn "L"
-               else gameLoop newGrid size newCnt win cntBombs  -- Passa o número de bombas para a próxima chamada
-
+    gameLoop' newCnt newGrid res cntBombs
+  where
+    gameLoop' newCnt newGrid res cntBombs
+      | newCnt == win = do
+          printGrid newGrid
+          putStrLn "You win!"
+      | not res = do
+          let finalGrid = revealBombs newGrid  -- Revela as bombas no grid final
+          printGrid finalGrid
+          putStrLn "You lose!"
+      | otherwise = gameLoop newGrid size newCnt win cntBombs  -- Continua o jogo com o novo grid e contador
+      
 -- Imprime o grid
 printGrid :: Grid -> IO ()
 printGrid = mapM_ (putStrLn . unwords . map showNode)
