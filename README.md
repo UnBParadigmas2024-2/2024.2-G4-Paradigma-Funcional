@@ -1,7 +1,7 @@
-# NomeDoProjeto
+# Campo Minado
 
 **Disciplina**: FGA0210 - PARADIGMAS DE PROGRAMAÇÃO - T01 <br>
-**Nro do Grupo (de acordo com a Planilha de Divisão dos Grupos)**: 4<br>
+**Nro do Grupo**: 4<br>
 **Paradigma**: Funcional<br>
 
 ## Alunos
@@ -18,25 +18,89 @@
 | 21/1029559 | [Rafael Brito Bosi Rodrigues](https://github.com/StrangeUnit28) |	
 | 16/0149410 | Yudi Yamane de Azevedo	| 
 
+---
+
 ## Sobre 
 Descreva o seu projeto em linhas gerais. 
 Use referências, links, que permitam conhecer um pouco mais sobre o projeto.
 Capriche nessa seção, pois ela é a primeira a ser lida pelos interessados no projeto.
 
+---
+
 ## Screenshots
 Adicione 2 ou mais screenshots do projeto em termos de interface e/ou funcionamento.
 
-## Instalação 
-**Linguagens**: xxxxxx<br>
-**Tecnologias**: xxxxxx<br>
-Descreva os pré-requisitos para rodar o seu projeto e os comandos necessários.
-Insira um manual ou um script para auxiliar ainda mais.
-Gifs animados e outras ilustrações são bem-vindos!
+---
+
+## Execução
+**Linguagens**: [Haskell](https://www.haskell.org/downloads/)<br>
+**Tecnologias**: [Cabal](https://www.haskell.org/cabal/)<br>
+
+### Pré-requisitos
+
+1. **Clonar o Repositório**
+   - Clone este repositório em seu ambiente local:
+     ```bash
+     git clone <URL_DO_REPOSITORIO>
+     cd 2024.2_G4_Funcional_CampoMinado
+     ```
+
+2. **Instalar o Haskell e Cabal**
+   - Certifique-se de ter o Haskell instalado. Para verificar, execute:
+     ```bash
+     ghc --version
+     ```
+   - O Cabal geralmente é incluído com a instalação do Haskell, mas caso não esteja disponível, instale-o conforme as instruções no site do Haskell: [Haskell.org](https://www.haskell.org/).
+
+### Executando o Projeto no Windows
+
+1. **Build do Projeto**
+   - Instale as dependências e compile o projeto usando:
+     ```bash
+     cabal build
+     ```
+
+2. **Executar o Jogo**
+   - Após a construção do projeto, execute o jogo com o comando:
+     ```bash
+     cabal run
+     ```
+
+### Executando o Projeto no Linux e macOS
+
+1. **Instalar Haskell e Cabal**
+   - Execute o comando a seguir para instalar Haskell e Cabal:
+     ```bash
+     sudo apt-get install haskell-platform  # Para Linux (Debian/Ubuntu)
+     brew install ghc cabal-install          # Para macOS com Homebrew
+     ```
+
+2. **Build do Projeto**
+   - Compile o projeto e instale as dependências com:
+     ```bash
+     cabal build
+     ```
+
+3. **Executar o Jogo**
+   - Após o build, inicie o jogo com:
+     ```bash
+     cabal run
+     ```
+
+### Problemas Comuns
+- Caso enfrente erros de compilação, verifique se as versões do GHC e Cabal estão atualizadas.
+- Consulte a documentação oficial para resolver dependências específicas de pacotes Haskell.
+
+Com essas instruções, você deve estar pronto para compilar e jogar Campo Minado no Haskell!
+
+---
 
 ## Uso 
 Explique como usar seu projeto.
 Procure ilustrar em passos, com apoio de telas do software, seja com base na interface gráfica, seja com base no terminal.
 Nessa seção, deve-se revelar de forma clara sobre o funcionamento do software.
+
+---
 
 ## Vídeo
 Adicione 1 ou mais vídeos com a execução do projeto.
@@ -48,11 +112,15 @@ Procure:
 OBS: TODOS DEVEM PARTICIPAR, CONFERINDO PONTOS DE VISTA.
 TEMPO: +/- 15min
 
+---
+
 ## Participações
 Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 |Nome do Membro | Contribuição | Significância da Contribuição para o Projeto (Excelente/Boa/Regular/Ruim/Nula) | Comprobatórios (ex. links para commits)
 | -- | -- | -- | -- |
 | Fulano  |  Programação dos Fatos da Base de Conhecimento Lógica | Boa | Commit tal (com link)
+
+---
 
 ## Outros 
 Quaisquer outras informações sobre o projeto podem ser descritas aqui. Não esqueça, entretanto, de informar sobre:
@@ -60,6 +128,8 @@ Quaisquer outras informações sobre o projeto podem ser descritas aqui. Não es
 (ii) Percepções;
 (iii) Contribuições e Fragilidades, e
 (iV) Trabalhos Futuros.
+
+---
 
 ## Fontes
 Referencie, adequadamente, as referências utilizadas.
