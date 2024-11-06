@@ -1,6 +1,7 @@
 
 dist
 dist-*
+campo-minado/dist-*
 cabal-dev
 *.o
 *.hi
