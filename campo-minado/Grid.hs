@@ -7,19 +7,33 @@ import Node (Coord)
 type Grid = [[Node]]
 
 -- Função que gera um campo minado aleatório e atualiza números adjacentes a bombas
-generateGrid :: Int -> IO (Grid, Int)
-generateGrid size = do
-    initialGrid <- replicateM size (replicateM size randomNode)
+generateGrid :: Int -> Int -> IO (Grid, Int)
+generateGrid size numBombs = do
+    -- Gera uma lista de posições para colocar bombas
+    bombPositions <- selectBombPositions size numBombs
+    initialGrid <- createGridWithBombs size bombPositions
     let gridWithCounts = countAdjacentBombs initialGrid size
-        countBombs = length $ filter (\n -> dataNode n == bomba) (concat initialGrid)
-    return (gridWithCounts, countBombs)
+    return (gridWithCounts, numBombs)
   where
-    randomNode :: IO Node
-    randomNode = do
-        rand <- randomRIO (0 :: Int, 4 :: Int) -- 20% de chance de ser uma bomba, pode mudar com alguma dificuldade, sei la
-        return $ Node (if rand == 0 then bomba else 0) False
+    -- Seleciona posições aleatórias para as bombas
+    selectBombPositions :: Int -> Int -> IO [Coord]
+    selectBombPositions size n = do
+        positions <- replicateM n $ do
+            x <- randomRIO (0, size - 1)
+            y <- randomRIO (0, size - 1)
+            return (x, y)
+        return (removeDuplicates positions)
+    
+    -- Cria o grid inicial com bombas nas posições selecionadas
+    createGridWithBombs :: Int -> [Coord] -> IO Grid
+    createGridWithBombs size bombPositions = 
+        return [[if (i, j) `elem` bombPositions then Node bomba False else Node 0 False | j <- [0 .. size - 1]] | i <- [0 .. size - 1]]
+    
+    -- Remove duplicatas para garantir que cada posição tenha apenas uma bomba
+    removeDuplicates :: [Coord] -> [Coord]
+    removeDuplicates = foldl (\seen x -> if x `elem` seen then seen else seen ++ [x]) []
 
--- Conta o número de bombas perto de cada celula
+-- Conta o número de bombas perto de cada célula
 countAdjacentBombs :: Grid -> Int -> Grid
 countAdjacentBombs grid size = [[updateNode i j | j <- [0 .. size - 1]] | i <- [0 .. size - 1]]
   where
@@ -47,7 +61,7 @@ updateGrid grid i j =
         newNode = node { visited = True }
     in ys ++ ((xs ++ (newNode : xs')) : zs')
 
--- Função para revelar bombas qd perde
+-- Função para revelar bombas quando perde
 revealBombs :: Grid -> Grid
 revealBombs grid = [[revealNode node | node <- row] | row <- grid]
   where
