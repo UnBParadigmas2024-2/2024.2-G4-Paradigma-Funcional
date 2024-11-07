@@ -1,8 +1,19 @@
-module Main where
+module Game where
 
 import Grid (generateGrid, revealBombs, Grid)
 import BFS (bfs)
-import Node (Node(..), bomba, Coord)
+import Node (Node(..), bomba)
+
+data GameState = GameState {
+    state'grid     :: Grid,
+    state'size     :: Int,      -- Dimensões da grade
+    state'cnt      :: Int,      -- Qtd de células reveladas
+    state'win      :: Int,      -- Qtd de células reveladas pra ganhar
+    state'remainingBombs :: Int, 
+    state'finished :: Bool,
+    state'lose     :: Bool
+}
+
 
 -- Função para pedir o nível de dificuldade
 askDifficulty :: IO String
@@ -17,6 +28,33 @@ getBombChance "easy" size = max 1 (size * size `div` 10)
 getBombChance "normal" size = max 2 (size * size `div` 5)  
 getBombChance "hard" size = max 3 (size * size `div` 3)    -- quanto menor o valor, maior a dificuldade
 getBombChance _ size = max 2 (size * size `div` 5)         
+
+
+gameInit :: Int -> String -> IO (GameState)
+gameInit size difficulty = do
+    let bombChance = getBombChance difficulty size  -- Passa o tamanho do grid
+    (grid, cntBombs) <- generateGrid size bombChance  -- Gerar o grid com base no número de bombas
+    let win = size * size - cntBombs  -- Condição de vitória
+
+    return (GameState grid size 0 win cntBombs False False)
+
+
+gameUpdate :: GameState -> Int -> Int -> IO (GameState)
+gameUpdate state row col = do
+    (res, newCnt, newGrid) <- bfs (state'grid  state) (state'size  state) (row, col) (state'cnt state) (state'win state)
+
+    let hasWon   = (state'win state) == (state'cnt state)
+    let hasLost  = not res
+    let finished = hasLost || hasWon 
+
+    return $ GameState
+        newGrid
+        (state'size state)
+        newCnt
+        (state'win state)
+        (state'remainingBombs state)
+        finished
+        hasLost
 
 
 playGame :: Int -> String -> IO ()
@@ -36,7 +74,6 @@ gameLoop grid size cnt win cntBombs = do
     putStrLn "Enter your move \"row col\" (1/n 1/n):"
     move <- getLine
     let [row, col] = map (\x -> read x - 1) (words move) :: [Int]
-    let initialQueue = [(row, col)]  -- A fila começa com a coordenada inicial
     (res, newCnt, newGrid) <- bfs grid size (row, col) cnt win
     gameLoop' newCnt newGrid res cntBombs
   where
