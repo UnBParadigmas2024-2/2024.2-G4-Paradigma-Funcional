@@ -153,6 +153,13 @@ main = do
             putStrLn $ "           Lose: " ++ show (state'lose state)
             printGrid (state'grid state)
             putStrLn "Enter your move \"row col\" (1/n 1/n):"
+            if (state'finished state) && (state'lose state) then
+              putStrLn "               Voce perdeu!!"
+            else if not (state'lose state) then
+              putStrLn "               Voce ganhou!!"
+            else 
+              return ()
+
             move <- getLine
             let [row, col] = map (\x -> read x - 1) (words move) :: [Int]
 
