@@ -7,14 +7,14 @@ module Main where
 
 import Control.Monad (forM_)
 import Paths_CampoMinado (getDataFileName)
-import Raylib.Core (clearBackground)
+import Raylib.Core (clearBackground, isMouseButtonPressed, getMousePosition)
 import Raylib.Core.Textures
   ( 
     drawTexturePro,
     loadImage,
     loadTextureFromImage,
   )
-import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), pattern Vector2)
+import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), pattern Vector2, MouseButton (..))
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
@@ -88,27 +88,41 @@ main = do
     ( \window -> do
         texture <- managed window $ loadTextureFromImage =<< loadImage =<< getDataFileName spritePath
 
-        let scale = 2
-
+        let scale = 1
+        let spriteBombSize = 16
         initialState <- (gameInit 10 "easy")
 
         whileWindowOpen_
           (\state -> do
             -- 3. Renderizar
+            mouseClicked <- isMouseButtonPressed MouseButtonLeft
+            (mouseX, mouseY) <- (\(Vector2 x y) -> (floor x, floor y)) <$> getMousePosition
+
+            let colIndex = (mouseX - 100) `div` spriteBombSize
+                rowIndex = (mouseY - 100) `div` spriteBombSize
+                validClick = mouseClicked && rowIndex >= 0 && colIndex >= 0 &&
+                            rowIndex < length (state'grid state) &&
+                            colIndex < length (head (state'grid state))
+
+            -- Update
+            newState <- if validClick
+                        then gameUpdate state rowIndex colIndex
+                        else return state
             drawing
               ( do
                 clearBackground black
-                let spriteBombSize = 16*scale
+              
+
 
                 -- Campo visível
-                forM_ (zip [0..] (state'grid state)) $ \(rowIndex, row) -> 
+                forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, row) -> 
                     forM_ (zip [0..] row) $ \(colIndex, _) -> 
                       ( do
                           let x = 100 + fromIntegral (colIndex * spriteBombSize)
                               y = 100 + fromIntegral (rowIndex * spriteBombSize)
-                              rect = getRectForVisibleCellSprite (state'grid state) rowIndex colIndex
+                              rect = getRectForVisibleCellSprite (state'grid newState) rowIndex colIndex
                           
-                          if visited ((state'grid state) !! rowIndex !! colIndex) then
+                          if visited ((state'grid newState) !! rowIndex !! colIndex) then
                             drawTexturePro texture spriteVisited
                               (Rectangle x y ((rectangle'width (spriteVisited))*(fromIntegral scale)) 
                               ((rectangle'height (spriteVisited))*(fromIntegral scale))) 
@@ -126,12 +140,12 @@ main = do
                       )
 
                 -- Campo invisível, debug apenas
-                forM_ (zip [0..] (state'grid state)) $ \(rowIndex, row) -> 
+                forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, row) -> 
                     forM_ (zip [0..] row) $ \(colIndex, _) -> 
                       ( do
                           let x = 500 + fromIntegral (colIndex * spriteBombSize)
                               y = 100 + fromIntegral (rowIndex * spriteBombSize)
-                              rect = getRectForHiddenCellSprite (state'grid state) rowIndex colIndex
+                              rect = getRectForHiddenCellSprite (state'grid newState) rowIndex colIndex
                           
                           -- if not visited
                           drawTexturePro texture spriteVisited 
@@ -147,24 +161,20 @@ main = do
               )
 
             -- 1. Input
-            putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs state)
-            putStrLn $ "       Finished: " ++ show (state'finished state)
-            putStrLn $ "            Cnt: " ++ show (state'cnt state)
-            putStrLn $ "           Lose: " ++ show (state'lose state)
-            printGrid (state'grid state)
+            putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs newState)
+            putStrLn $ "       Finished: " ++ show (state'finished newState)
+            putStrLn $ "            Cnt: " ++ show (state'cnt newState)
+            putStrLn $ "           Lose: " ++ show (state'lose newState)
+            printGrid (state'grid newState)
             putStrLn "Enter your move \"row col\" (1/n 1/n):"
-            if (state'finished state) && (state'lose state) then
+            -- FIXME: condição para você ganhou está sempre considerando vitória
+            if (state'finished newState) && (state'lose newState) then
               putStrLn "               Voce perdeu!!"
-            else if not (state'lose state) then
+            else if not (state'lose newState) then
               putStrLn "               Voce ganhou!!"
             else 
               return ()
-
-            move <- getLine
-            let [row, col] = map (\x -> read x - 1) (words move) :: [Int]
-
-            -- 2. Update
-            gameUpdate state row col
+            return newState
           )
           initialState
     )
