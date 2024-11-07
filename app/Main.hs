@@ -20,7 +20,7 @@ import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), p
 import Raylib.Util (drawing, textureMode, whileWindowOpen0, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, lightGray, white)
 
-import Game (printGrid, gameInit, gameUpdate, state'grid, state'remainingBombs)
+import Game (printGrid, gameInit, gameUpdate, state'grid, state'remainingBombs, state'finished, state'cnt, state'lose)
 import Node (Node(..))
 import Grid (Grid)
 
