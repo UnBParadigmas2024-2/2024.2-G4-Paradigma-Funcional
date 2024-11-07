@@ -88,8 +88,8 @@ main = do
     ( \window -> do
         texture <- managed window $ loadTextureFromImage =<< loadImage =<< getDataFileName spritePath
 
-        let scale = 1
-        let spriteBombSize = 16
+        let scale = 2 :: Float
+        let spriteBombSize = (16* round (scale)) :: Int
         let gridOffset = 100
         initialState <- (gameInit 10 "easy")
 
