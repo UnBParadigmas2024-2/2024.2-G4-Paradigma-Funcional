@@ -44,7 +44,7 @@ gameUpdate state row col = do
     (res, newCnt, newGrid) <- bfs (state'grid  state) (state'size  state) (row, col) (state'cnt state) (state'win state)
 
     let hasWon   = (state'win state) == (state'cnt state)
-    let hasLost  = not res
+    let hasLost  = not hasWon && not res
     let finished = hasLost || hasWon 
 
     return $ GameState

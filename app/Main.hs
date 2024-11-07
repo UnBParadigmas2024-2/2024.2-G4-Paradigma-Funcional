@@ -18,7 +18,7 @@ import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), p
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
-import Game (gameInit, gameUpdate, state'grid)
+import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'remainingBombs, printGrid)
 import Node (Node(..), bomba)
 import Grid (Grid)
 
@@ -109,6 +109,25 @@ main = do
             newState <- if validClick
                         then gameUpdate state row col
                         else return state
+            if validClick then do
+              -- printGrid (state'grid newState)
+              putStrLn $ "-------------------------- "
+              putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs newState)
+              putStrLn $ "       Finished: " ++ show (state'finished newState)
+              putStrLn $ "           Lose: " ++ show (state'lose newState)
+              putStrLn $ "            Cnt: " ++ show (state'cnt newState)
+              -- FIXME: condição para você ganhou está sempre considerando vitória
+              if (state'cnt newState) == (state'win newState) then
+                putStrLn "               Voce ganhou!!"
+                -- TODO: revelar grid final?
+              else if (state'lose newState) then
+                putStrLn "               Voce perdeu!!"
+                -- TODO: revelar grid final
+                -- TODO: impedir que o jogo continue sendo jogado
+                -- TODO: reiniciar jogo?
+              else 
+                putStrLn "                Game running"
+            else return ()
 
             -- 3. Renderizar
             drawing
@@ -160,21 +179,6 @@ main = do
                             (Vector2 0 0) 0 white
                       )
               )
-
-            -- 1. Input
-            -- putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs newState)
-            -- putStrLn $ "       Finished: " ++ show (state'finished newState)
-            -- putStrLn $ "            Cnt: " ++ show (state'cnt newState)
-            -- putStrLn $ "           Lose: " ++ show (state'lose newState)
-            -- printGrid (state'grid newState)
-            -- putStrLn "Enter your move \"row col\" (1/n 1/n):"
-            -- -- FIXME: condição para você ganhou está sempre considerando vitória
-            -- if (state'finished newState) && (state'lose newState) then
-            --   putStrLn "               Voce perdeu!!"
-            -- else if not (state'lose newState) then
-            --   putStrLn "               Voce ganhou!!"
-            -- else 
-            --   return ()
 
             return newState
           )
