@@ -4,31 +4,31 @@ import Node (Node(..), bomba)
 import Node (Coord)
 import Grid (Grid, check, updateGrid, showFlag)
 
-bfs :: Grid -> Int -> Coord -> Int -> Int -> Int -> IO (Bool, Int, Grid)
-bfs grid size (i, j) cnt win flag = bfsRec grid [(i, j)] flag size cnt win
+bfs :: Grid -> Int -> Coord -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
+bfs grid size (i, j) cnt win flag = bfsRec grid [(i, j)] size cnt win flag
 
-bfsRec :: Grid -> [Coord] -> Int -> Int -> Int -> Int -> IO (Bool, Int, Grid)
-bfsRec grid [] _ _ cnt _ = return (True, cnt, grid)  -- Se a fila está vazia, acabou
-bfsRec grid ((i, j):queue) flag size cnt win
-    | flag == 1 && not (visited node) = do -- Verifica se onde o usuário quer por a bandeira já foi visitado
+bfsRec :: Grid -> [Coord] -> Int -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
+bfsRec grid [] _ cnt _ _ = return (True, cnt, grid)  -- Se a fila está vazia, acabou
+bfsRec grid ((i, j):queue) size cnt win flag
+    | flag == True && not (visited node) = do
         let gridWithFlag = showFlag grid i j
-        bfsRec gridWithFlag queue 1 size cnt win
+        bfsRec gridWithFlag queue size cnt win True
     | dataNode node == bomba = return (False, cnt, grid)  -- Bomba, perdeu
     | cnt == win = return (True, cnt, grid)  -- Se o contador atingir a quantidade total de células visitáveis, ganhou
-    | visited node = bfsRec grid queue 0 size cnt win  -- Se o nó já foi visitado, segue pro prox
+    | visited node = bfsRec grid queue size cnt win False  -- Se o nó já foi visitado, segue pro prox
     | dataNode node /= 0 = do  -- Se for número, não visita mais nada
         let newGrid = updateGrid grid i j
             newCnt
                 | not (visited node) = cnt + 1
                 | otherwise = cnt
-        bfsRec newGrid queue 0 size newCnt win
+        bfsRec newGrid queue size newCnt win False
     | otherwise = do
         let newGrid = updateGrid grid i j
             newCnt
                 | not (visited node) = cnt + 1
                 | otherwise = cnt
         let expandedQueue = expandQueue newGrid size (i, j) queue
-        bfsRec newGrid expandedQueue 0 size newCnt win
+        bfsRec newGrid expandedQueue size newCnt win False
   where
     node = grid !! i !! j  -- Obtém o nó correspondente à coordenada (i, j)
 
