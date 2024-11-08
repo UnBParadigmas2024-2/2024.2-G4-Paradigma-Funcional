@@ -71,12 +71,18 @@ executable CampoMinado
     build-depends:    
         base ^>=4.18.2.1,
         h-raylib,
+        random, 
+        random-shuffle
 
     -- Directories containing source files.
     hs-source-dirs:   app
 
     other-modules:
-        Paths_CampoMinado
+        Paths_CampoMinado,
+        BFS,
+        Game,
+        Grid,
+        Node
 
     -- Base language which the package is written in.
     default-language: Haskell2010
