@@ -5,22 +5,24 @@ module Main where
 -- Assets do campo minado
 -- https://github.com/BrandonDusseau/minesweeper-classic
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, foldM)
 import Paths_CampoMinado (getDataFileName)
-import Raylib.Core (clearBackground, isMouseButtonPressed, getMousePosition)
+import Raylib.Core (clearBackground, isMouseButtonPressed, getMousePosition, getMouseX, getMouseY)
 import Raylib.Core.Textures
   ( 
     drawTexturePro,
     loadImage,
     loadTextureFromImage,
   )
-import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), pattern Vector2, MouseButton (..))
+import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), pattern Vector2, MouseButton (..), Font (font'baseSize))
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
 import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'remainingBombs, printGrid)
 import Node (Node(..), bomba)
 import Grid (Grid)
+import GHC.Generics (S)
+import Raylib.Core.Text (drawText)
 
 spriteError      :: Rectangle; spriteError      = (Rectangle (96)   (64) 16 16) -- Área hachurada em rosa
 spriteVisited    :: Rectangle; spriteVisited    = (Rectangle (32) (83) 16 16)
@@ -77,116 +79,183 @@ getRectForHiddenCellSprite grid row col = rect
       | otherwise        = spriteError
 
 
+-- Define os tipos de telas
+data Screen = MainMenu | GameScreen deriving Eq
+
 spritePath :: String
 spritePath = "assets/sprite.gif"
+buttonPath :: String
+buttonPath = "assets/button.png"
 
 main :: IO ()
 main = do
   withWindow
-    (600 * 2)
-    450
+    1280
+    900
     "Campo Minado"
     60
     ( \window -> do
         texture <- managed window $ loadTextureFromImage =<< loadImage =<< getDataFileName spritePath
+        buttonTexture <- managed window $ loadTextureFromImage =<< loadImage =<< getDataFileName buttonPath
 
         let scale = 2 :: Float
         let spriteBombSize = (16* round (scale)) :: Int
         let gridOffset = 100
         initialState <- (gameInit 10 "easy")
+        let initialScreen = MainMenu
 
-        whileWindowOpen_
-          (\state -> do
-            -- 1. Input
-            leftButtonClicked <- isMouseButtonPressed MouseButtonLeft
-            rightButtonClicked <- isMouseButtonPressed MouseButtonRight -- Clique com o lado direito para colocar uma bandeira
-            let mouseClicked = leftButtonClicked || rightButtonClicked
-            (mouseX, mouseY) <- (\(Vector2 x y) -> (floor x, floor y)) <$> getMousePosition
+        -- Controle da tela atual com estado encapsulado em uma tupla
+        whileWindowOpen_ (\(state, screen) -> do
+            case screen of
+              MainMenu -> do
+                drawing $ do
+                  clearBackground black
+                  -- Configuração dos três botões
+                  let buttonWidth = 150
+                      buttonHeight = 75
+                      buttonSpacing = 20
+                      buttonY = 300
+                      fontSize = 20
+                  -- Configuração dos botões e seus respectivos parâmetros
+                  let buttonConfigs = 
+                        [ ("Easy", 100, 10, "easy")       -- Texto, Posição X, GRID, Dificuldade"
+                        , ("Normal", 300, 15, "normal")   
+                        , ("Hard", 500, 20, "hard")       
+                        ]
+                  -- Função auxiliar para desenhar o botão e detectar cliques
+                  let drawAndCheckButtonClick (text, buttonX, gridSize, difficulty) = do
+                        -- Posições para centralizar o texto no botão
+                        let textX = buttonX + (buttonWidth `div` 2) - (length text * fontSize `div` 4)
+                            textY = buttonY + (buttonHeight `div` 2) - (fontSize `div` 2)
 
-            let col = (mouseX - gridOffset) `div` spriteBombSize
-                row = (mouseY - gridOffset) `div` spriteBombSize
-                validClick = mouseClicked && row >= 0 && col >= 0 &&
-                            row < length (state'grid state) &&
-                            col < length (head (state'grid state))
+                        -- Desenha o botão na posição especificada
+                        drawTexturePro buttonTexture 
+                          (Rectangle 0 0 793 205) 
+                          (Rectangle (fromIntegral buttonX) (fromIntegral buttonY) 
+                                    (fromIntegral buttonWidth) (fromIntegral buttonHeight))
+                          (Vector2 0 0) 0 white
 
-            -- 2. Atualizar jogo
-            newState <- if validClick
-                        then gameUpdate state row col rightButtonClicked
-                        else return state
-            if validClick then do
-              -- printGrid (state'grid newState)
-              putStrLn $ "-------------------------- "
-              putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs newState)
-              putStrLn $ "       Finished: " ++ show (state'finished newState)
-              putStrLn $ "           Lose: " ++ show (state'lose newState)
-              putStrLn $ "            Cnt: " ++ show (state'cnt newState)
-              -- FIXME: condição para você ganhou está sempre considerando vitória
-              if (state'cnt newState) == (state'win newState) then
-                putStrLn "               Voce ganhou!!"
-                -- TODO: revelar grid final?
-              else if (state'lose newState) then
-                putStrLn "               Voce perdeu!!"
-                -- TODO: revelar grid final
-                -- TODO: impedir que o jogo continue sendo jogado
-                -- TODO: reiniciar jogo?
-              else 
-                putStrLn "                Game running"
-            else return ()
+                        -- Desenha o texto no botão
+                        drawText text textX textY fontSize black
 
-            -- 3. Renderizar
-            drawing
-              ( do
-                clearBackground black
+                        -- Verifica se o botão foi clicado
+                        mouseX <- getMouseX
+                        mouseY <- getMouseY
+                        leftMouseClicked <- isMouseButtonPressed MouseButtonLeft
+                        let isButtonClicked = leftMouseClicked &&
+                              mouseX >= buttonX &&
+                              mouseX <= buttonX + buttonWidth &&
+                              mouseY >= buttonY &&
+                              mouseY <= buttonY + buttonHeight
 
-                -- Campo visível
-                forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
-                    forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
-                      ( do
-                          let x = fromIntegral (gridOffset + (colIndex * spriteBombSize)) :: Float
-                              y = fromIntegral (gridOffset + (rowIndex * spriteBombSize)) :: Float
-                              rect = getRectForVisibleCellSprite (state'grid newState) rowIndex colIndex
-                          
-                          if visited ((state'grid newState) !! rowIndex !! colIndex) then
-                            drawTexturePro texture spriteVisited
-                              (Rectangle x y ((rectangle'width (spriteVisited))*scale) 
-                              ((rectangle'height (spriteVisited))*scale)) 
-                              (Vector2 0 0) 0 white
-                          else
-                            drawTexturePro texture spriteNotVisited
-                              (Rectangle x y ((rectangle'width (spriteNotVisited))*scale) 
-                              ((rectangle'height (spriteNotVisited))*scale)) 
-                              (Vector2 0 0) 0 white
+                        -- Se o botão foi clicado, inicia o jogo com o estado inicial
+                        if isButtonClicked
+                          then do
+                            initialState <- gameInit gridSize difficulty
+                            return (Just (initialState, GameScreen)) -- Retorna o estado do jogo e tela
+                          else return Nothing
 
-                          drawTexturePro texture rect 
-                            (Rectangle x y ((rectangle'width (rect))*scale) 
-                            ((rectangle'height (rect))*scale)) 
-                            (Vector2 0 0) 0 white
-                      )
+                  -- Desenha cada botão e verifica cliques
+                  result <- foldM (\acc btnConfig -> 
+                            case acc of
+                              Just val -> return (Just val) -- Já encontrou o botão clicado
+                              Nothing -> drawAndCheckButtonClick btnConfig) 
+                            Nothing buttonConfigs
 
-                -- Campo invisível, debug apenas
-                forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
-                    forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
-                      ( do
-                          let x = fromIntegral (500 + (colIndex * spriteBombSize)) :: Float
-                              y = fromIntegral (100 + (rowIndex * spriteBombSize)) :: Float
-                              rect = getRectForHiddenCellSprite (state'grid newState) rowIndex colIndex
-                          
-                          -- if not visited
-                          drawTexturePro texture spriteVisited 
-                            (Rectangle x y ((rectangle'width (spriteVisited))*scale) 
-                            ((rectangle'height (spriteVisited))*scale)) 
-                            (Vector2 0 0) 0 white
+                  -- Decide o próximo estado com base na detecção de clique
+                  case result of
+                    Just gameState -> return gameState
+                    Nothing -> return (state, MainMenu) -- Se nenhum botão foi clicado, permanece no menu
 
-                          drawTexturePro texture rect 
-                            (Rectangle x y ((rectangle'width (rect))*scale) 
-                            ((rectangle'height (rect))*scale)) 
-                            (Vector2 0 0) 0 white
-                      )
-              )
+              GameScreen -> do
+                -- 1. Input
+                leftButtonClicked <- isMouseButtonPressed MouseButtonLeft
+                rightButtonClicked <- isMouseButtonPressed MouseButtonRight
+                let mouseClicked = leftButtonClicked || rightButtonClicked
+                (mouseX, mouseY) <- (\(Vector2 x y) -> (floor x, floor y)) <$> getMousePosition
 
-            return newState
+                let col = (mouseX - gridOffset) `div` spriteBombSize
+                    row = (mouseY - gridOffset) `div` spriteBombSize
+                    validClick = mouseClicked && row >= 0 && col >= 0 &&
+                                row < length (state'grid state) &&
+                                col < length (head (state'grid state))
+
+                -- 2. Atualizar jogo
+                newState <- if validClick
+                            then gameUpdate state row col rightButtonClicked
+                            else return state
+                if validClick then do
+                  -- printGrid (state'grid newState)
+                  putStrLn $ "-------------------------- "
+                  putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs newState)
+                  putStrLn $ "       Finished: " ++ show (state'finished newState)
+                  putStrLn $ "           Lose: " ++ show (state'lose newState)
+                  putStrLn $ "            Cnt: " ++ show (state'cnt newState)
+                  -- FIXME: condição para você ganhou está sempre considerando vitória
+                  if (state'cnt newState) == (state'win newState) then
+                    putStrLn "               Voce ganhou!!"
+                    -- TODO: revelar grid final?
+                  else if (state'lose newState) then
+                    putStrLn "               Voce perdeu!!"
+                    -- TODO: revelar grid final
+                    -- TODO: impedir que o jogo continue sendo jogado
+                    -- TODO: reiniciar jogo?
+                  else 
+                    putStrLn "                Game running"
+                else return ()
+
+                drawing 
+                  ( do
+                    clearBackground black
+
+                    -- Campo visível
+                    forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
+                        forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
+                          ( do
+                              let x = fromIntegral (gridOffset + (colIndex * spriteBombSize)) :: Float
+                                  y = fromIntegral (gridOffset + (rowIndex * spriteBombSize)) :: Float
+                                  rect = getRectForVisibleCellSprite (state'grid newState) rowIndex colIndex
+                              
+                              if visited ((state'grid newState) !! rowIndex !! colIndex) then
+                                drawTexturePro texture spriteVisited
+                                  (Rectangle x y ((rectangle'width (spriteVisited))*scale) 
+                                  ((rectangle'height (spriteVisited))*scale)) 
+                                  (Vector2 0 0) 0 white
+                              else
+                                drawTexturePro texture spriteNotVisited
+                                  (Rectangle x y ((rectangle'width (spriteNotVisited))*scale) 
+                                  ((rectangle'height (spriteNotVisited))*scale)) 
+                                  (Vector2 0 0) 0 white
+
+                              drawTexturePro texture rect 
+                                (Rectangle x y ((rectangle'width (rect))*scale) 
+                                ((rectangle'height (rect))*scale)) 
+                                (Vector2 0 0) 0 white
+                          )
+
+                    -- Campo invisível, debug apenas
+                  {- forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
+                        forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
+                          ( do
+                              let x = fromIntegral (500 + (colIndex * spriteBombSize)) :: Float
+                                  y = fromIntegral (100 + (rowIndex * spriteBombSize)) :: Float
+                                  rect = getRectForHiddenCellSprite (state'grid newState) rowIndex colIndex
+                              
+                              -- if not visited
+                              drawTexturePro texture spriteVisited 
+                                (Rectangle x y ((rectangle'width (spriteVisited))*scale) 
+                                ((rectangle'height (spriteVisited))*scale)) 
+                                (Vector2 0 0) 0 white
+
+                              drawTexturePro texture rect 
+                                (Rectangle x y ((rectangle'width (rect))*scale) 
+                                ((rectangle'height (rect))*scale)) 
+                                (Vector2 0 0) 0 white
+                          )-}
+                  )
+                return (newState, GameScreen)
           )
-          initialState
+          (initialState, initialScreen) -- Estado inicial e tela inicial
     )
 
 
