@@ -38,10 +38,9 @@ gameInit size difficulty = do
 
     return (GameState grid size 0 win cntBombs False False)
 
-
-gameUpdate :: GameState -> Int -> Int -> IO (GameState)
-gameUpdate state row col = do
-    (res, newCnt, newGrid) <- bfs (state'grid  state) (state'size  state) (row, col) (state'cnt state) (state'win state)
+gameUpdate :: GameState -> Int -> Int -> Bool -> IO (GameState)
+gameUpdate state row col isSettingFlag = do
+    (res, newCnt, newGrid) <- bfs (state'grid  state) (state'size  state) (row, col) (state'cnt state) (state'win state) isSettingFlag
 
     let hasWon   = (state'win state) == (state'cnt state)
     let hasLost  = not hasWon && not res
@@ -71,11 +70,17 @@ gameLoop grid size cnt win cntBombs = do
     -- Exibe o número de bombas antes de cada movimento
     putStrLn $ "Number of bombs: " ++ show cntBombs
     printGrid grid
-    putStrLn "Enter your move \"row col\" (1/n 1/n):"
+    putStrLn "Enter your move \"row col\" or set a flag \"row col 1\":"
     move <- getLine
-    let [row, col] = map (\x -> read x - 1) (words move) :: [Int]
-    (res, newCnt, newGrid) <- bfs grid size (row, col) cnt win
+    let userInput = words move
+    let [row, col] = map (\x -> read x - 1) (take 2 userInput) :: [Int] 
+    let initialQueue = [(row, col)]  -- A fila começa com a coordenada inicial
+    
+    let flag = if length userInput <= 2 then False else True
+
+    (res, newCnt, newGrid) <- bfs grid size (row, col) cnt win flag
     gameLoop' newCnt newGrid res cntBombs
+
   where
     gameLoop' newCnt newGrid res cntBombs
       | newCnt == win = do
@@ -86,13 +91,14 @@ gameLoop grid size cnt win cntBombs = do
           printGrid finalGrid
           putStrLn "You lose!"
       | otherwise = gameLoop newGrid size newCnt win cntBombs  -- Continua o jogo com o novo grid e contador
-      
+
 -- Imprime o grid
 printGrid :: Grid -> IO ()
 printGrid = mapM_ (putStrLn . unwords . map showNode)
   where
-    showNode (Node d v)
-        | not v     = "_"
+    showNode (Node d v f)
+        | not v && f == False = "_"
+        | not v && f == True = "!" -- Sinalização de possível bomba
         | d == bomba = "*"  -- Mostrar a bomba
         | otherwise = show d
 

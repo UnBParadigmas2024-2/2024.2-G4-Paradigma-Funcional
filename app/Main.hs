@@ -35,13 +35,14 @@ spriteBombCount5 :: Rectangle; spriteBombCount5 = (Rectangle (16*0) (21+16) 16 1
 spriteBombCount6 :: Rectangle; spriteBombCount6 = (Rectangle (16*1) (21+16) 16 16)
 spriteBombCount7 :: Rectangle; spriteBombCount7 = (Rectangle (16*2) (21+16) 16 16)
 spriteBombCount8 :: Rectangle; spriteBombCount8 = (Rectangle (16*3) (21+16) 16 16)
--- spriteFlag           = ...
+spriteFlag       :: Rectangle; spriteFlag       = (Rectangle (16*1) (21+16*2) 16 16)
 
 getRectForVisibleCellSprite :: Grid -> Int -> Int -> Rectangle
 getRectForVisibleCellSprite grid row col = rect
   where 
     isVisited   = visited (grid !! row !! col)
     bombsAround = dataNode (grid !! row !! col)
+    flagSet = hasFlag (grid !! row !! col)
     rect
       | isVisited && bombsAround == bomba = spriteBomb
       | isVisited && bombsAround == 0 = spriteVisited
@@ -53,6 +54,7 @@ getRectForVisibleCellSprite grid row col = rect
       | isVisited && bombsAround == 6 = spriteBombCount6
       | isVisited && bombsAround == 7 = spriteBombCount7
       | isVisited && bombsAround == 8 = spriteBombCount8
+      | (not isVisited) && flagSet = spriteFlag
       | not isVisited = spriteNotVisited
       | otherwise     = spriteError
 
@@ -96,7 +98,9 @@ main = do
         whileWindowOpen_
           (\state -> do
             -- 1. Input
-            mouseClicked <- isMouseButtonPressed MouseButtonLeft
+            leftButtonClicked <- isMouseButtonPressed MouseButtonLeft
+            rightButtonClicked <- isMouseButtonPressed MouseButtonRight -- Clique com o lado direito para colocar uma bandeira
+            let mouseClicked = leftButtonClicked || rightButtonClicked
             (mouseX, mouseY) <- (\(Vector2 x y) -> (floor x, floor y)) <$> getMousePosition
 
             let col = (mouseX - gridOffset) `div` spriteBombSize
@@ -107,7 +111,7 @@ main = do
 
             -- 2. Atualizar jogo
             newState <- if validClick
-                        then gameUpdate state row col
+                        then gameUpdate state row col rightButtonClicked
                         else return state
             if validClick then do
               -- printGrid (state'grid newState)
