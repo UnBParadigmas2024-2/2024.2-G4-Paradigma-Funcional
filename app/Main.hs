@@ -5,28 +5,28 @@ module Main where
 -- Assets do campo minado
 -- https://github.com/BrandonDusseau/minesweeper-classic
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, when)
 import Paths_CampoMinado (getDataFileName)
-import Raylib.Core (clearBackground, isMouseButtonPressed, getMousePosition)
+import Raylib.Core (clearBackground, isMouseButtonPressed, getMousePosition, setTargetFPS, initWindow, closeWindow, endDrawing, beginDrawing, isKeyPressed)
+import Raylib.Core.Text (drawText)
 import Raylib.Core.Textures
-  ( 
-    drawTexturePro,
+  ( drawTexturePro,
     loadImage,
-    loadTextureFromImage,
+    loadTextureFromImage
   )
-import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), pattern Vector2, MouseButton (..))
+import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), pattern Vector2, MouseButton (..), KeyboardKey (..))
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
-import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'remainingBombs, printGrid)
+import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'remainingBombs)
 import Node (Node(..), bomba)
 import Grid (Grid)
 
-spriteError      :: Rectangle; spriteError      = (Rectangle (96)   (64) 16 16) -- Área hachurada em rosa
+spriteError      :: Rectangle; spriteError      = (Rectangle (96)   (64) 16 16)
 spriteVisited    :: Rectangle; spriteVisited    = (Rectangle (32) (83) 16 16)
 spriteNotVisited :: Rectangle; spriteNotVisited = (Rectangle (50) (83) 16 16)
 spriteBomb       :: Rectangle; spriteBomb       = (Rectangle (16*2) (21+16*2) 16 16)
-spriteBombCount0 :: Rectangle; spriteBombCount0 = (Rectangle (32)   (84) 16 16) -- É apenas um quadrado transparente no .gif
+spriteBombCount0 :: Rectangle; spriteBombCount0 = (Rectangle (32)   (84) 16 16)
 spriteBombCount1 :: Rectangle; spriteBombCount1 = (Rectangle (16*0) (21+0) 16 16)
 spriteBombCount2 :: Rectangle; spriteBombCount2 = (Rectangle (16*1) (21+0) 16 16)
 spriteBombCount3 :: Rectangle; spriteBombCount3 = (Rectangle (16*2) (21+0) 16 16)
@@ -35,7 +35,6 @@ spriteBombCount5 :: Rectangle; spriteBombCount5 = (Rectangle (16*0) (21+16) 16 1
 spriteBombCount6 :: Rectangle; spriteBombCount6 = (Rectangle (16*1) (21+16) 16 16)
 spriteBombCount7 :: Rectangle; spriteBombCount7 = (Rectangle (16*2) (21+16) 16 16)
 spriteBombCount8 :: Rectangle; spriteBombCount8 = (Rectangle (16*3) (21+16) 16 16)
--- spriteFlag           = ...
 
 getRectForVisibleCellSprite :: Grid -> Int -> Int -> Rectangle
 getRectForVisibleCellSprite grid row col = rect
@@ -56,7 +55,6 @@ getRectForVisibleCellSprite grid row col = rect
       | not isVisited = spriteNotVisited
       | otherwise     = spriteError
 
-
 getRectForHiddenCellSprite :: Grid -> Int -> Int -> Rectangle
 getRectForHiddenCellSprite grid row col = rect
   where
@@ -74,12 +72,39 @@ getRectForHiddenCellSprite grid row col = rect
       | bombsAround == 8 = spriteBombCount8
       | otherwise        = spriteError
 
-
 spritePath :: String
 spritePath = "assets/sprite.gif"
 
+selectGridSize :: IO Int
+selectGridSize = do
+    putStrLn "Escolha o tamanho do grid:"
+    putStrLn "1. Pequeno (10x10)"
+    putStrLn "2. Médio (15x15)"
+    putStrLn "3. Grande (20x20)"
+    choice <- getLine
+    return $ case choice of
+        "1" -> 10
+        "2" -> 15
+        "3" -> 20
+        _   -> 10  -- Tamanho padrão caso a entrada seja inválida
+
+selectDifficulty :: IO String
+selectDifficulty = do
+    putStrLn "Escolha a dificuldade:"
+    putStrLn "1. Fácil"
+    putStrLn "2. Normal"
+    putStrLn "3. Difícil"
+    choice <- getLine
+    return $ case choice of
+        "1" -> "Facil"
+        "2" -> "Normal"
+        "3" -> "Dificil"
+        _   -> "Facil"  -- Dificuldade padrão caso a entrada seja inválida
+
 main :: IO ()
 main = do
+  gridSize <- selectGridSize
+  difficulty <- selectDifficulty
   withWindow
     (600 * 2)
     450
@@ -89,9 +114,9 @@ main = do
         texture <- managed window $ loadTextureFromImage =<< loadImage =<< getDataFileName spritePath
 
         let scale = 2 :: Float
-        let spriteBombSize = (16* round (scale)) :: Int
+        let spriteBombSize = (16 * round (scale)) :: Int
         let gridOffset = 100
-        initialState <- (gameInit 10 "easy")
+        initialState <- gameInit gridSize difficulty
 
         whileWindowOpen_
           (\state -> do
@@ -110,21 +135,15 @@ main = do
                         then gameUpdate state row col
                         else return state
             if validClick then do
-              -- printGrid (state'grid newState)
               putStrLn $ "-------------------------- "
               putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs newState)
               putStrLn $ "       Finished: " ++ show (state'finished newState)
               putStrLn $ "           Lose: " ++ show (state'lose newState)
               putStrLn $ "            Cnt: " ++ show (state'cnt newState)
-              -- FIXME: condição para você ganhou está sempre considerando vitória
               if (state'cnt newState) == (state'win newState) then
                 putStrLn "               Voce ganhou!!"
-                -- TODO: revelar grid final?
               else if (state'lose newState) then
                 putStrLn "               Voce perdeu!!"
-                -- TODO: revelar grid final
-                -- TODO: impedir que o jogo continue sendo jogado
-                -- TODO: reiniciar jogo?
               else 
                 putStrLn "                Game running"
             else return ()
@@ -156,7 +175,7 @@ main = do
                           drawTexturePro texture rect 
                             (Rectangle x y ((rectangle'width (rect))*scale) 
                             ((rectangle'height (rect))*scale)) 
-                            (Vector2 0 0) 0 white
+                            (Vector2  0 0) 0 white
                       )
 
                 -- Campo invisível, debug apenas
