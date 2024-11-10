@@ -23,7 +23,22 @@ import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), p
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
-import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'size, state'remainingBombs,state'startTime, state'currentTime, state'structureType, printGrid, gameRestart)
+import Game 
+  ( gameInit 
+  , gameUpdate
+  , state'grid
+  , state'cnt
+  , state'finished
+  , state'win
+  , state'lose
+  , state'size
+  , state'remainingBombs
+  , state'startTime
+  , state'currentTime
+  , state'structureType
+  , printGrid
+  , gameRestart
+  )
 import Node (Node(..), bomba)
 import Grid (Grid)
 import GHC.Generics (S)
