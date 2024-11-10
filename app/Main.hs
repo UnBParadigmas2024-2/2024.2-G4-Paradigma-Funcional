@@ -96,36 +96,8 @@ spritePath = "assets/sprite.gif"
 buttonPath :: String
 buttonPath = "assets/button.png"
 
-selectGridSize :: IO Int
-selectGridSize = do
-    putStrLn "Escolha o tamanho do grid:"
-    putStrLn "1. Pequeno (10x10)"
-    putStrLn "2. Médio (15x15)"
-    putStrLn "3. Grande (20x20)"
-    choice <- getLine
-    return $ case choice of
-        "1" -> 10
-        "2" -> 15
-        "3" -> 20
-        _   -> 10  -- Tamanho padrão caso a entrada seja inválida
-
-selectDifficulty :: IO String
-selectDifficulty = do
-    putStrLn "Escolha a dificuldade:"
-    putStrLn "1. Fácil"
-    putStrLn "2. Normal"
-    putStrLn "3. Difícil"
-    choice <- getLine
-    return $ case choice of
-        "1" -> "Facil"
-        "2" -> "Normal"
-        "3" -> "Dificil"
-        _   -> "Facil"  -- Dificuldade padrão caso a entrada seja inválida
-
 main :: IO ()
 main = do
-  gridSize <- selectGridSize
-  difficulty <- selectDifficulty
   withWindow
     1280
     900
@@ -138,7 +110,7 @@ main = do
         let scale = 2 :: Float
         let spriteBombSize = (16 * round (scale)) :: Int
         let gridOffset = 100
-        initialState <- gameInit gridSize difficulty
+        initialState <- gameInit 10 "easy"
         let initialScreen = SetGridSizeMenu
 
         -- Controle da tela atual com estado encapsulado em uma tupla
@@ -321,18 +293,17 @@ main = do
                     -- TODO: reiniciar jogo?
                   else 
                     putStrLn "                Game running"
-                else return ()
 
                 drawing 
                   ( do
                     clearBackground black
                     -- Renderizar o contador de tempo
                     let timeStr = formatTime (state'currentTime newState)
-                      timerX = 20  
-                      timerY = 20  
-                      timerWidth = 120  
-                      timerHeight = 40  
-                      fontSize = 30  
+                    let timerX = 20  
+                    let timerY = 20  
+                    let timerWidth = 120  
+                    let timerHeight = 40  
+                    let fontSize = 30  
                 
                     -- Fundo do timer
                     drawRectangle timerX timerY timerWidth timerHeight white
