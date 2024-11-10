@@ -127,7 +127,7 @@ Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 | Felipe de Jesus Rodrigues |    |    |   |
 | Levi de Oliveira Queiroz |    |    |   |	
 | Matheus Fonseca Sousa |    |    |   |	
-| Matheus Costa Gomes |    |    |   |	
+| Matheus Costa Gomes | Implementação da funcionalidade de inserir bandeira e organização de código  |  Excelente  | [PR #5](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/pull/5) <br> [PR #11](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/pull/11)  |	
 | Pedro fonseca Cruz	|    |    |   |
 | Rafael Brito Bosi Rodrigues |    |    |   |	
 | Yudi Yamane de Azevedo	|    |    |   | 
