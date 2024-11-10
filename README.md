@@ -131,7 +131,7 @@ Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 |     Matheus Costa Gomes     |                                                                              |                                                                                |                                         |
 |     Pedro fonseca Cruz      |                                                                              |                                                                                |                                         |
 | Rafael Brito Bosi Rodrigues |                                                                              |                                                                                |                                         |
-|   Yudi Yamane de Azevedo    | Setup projeto com Raylib, renderização da grade de acordo com o estado do nó |                                      Boa                                       |            1ccffce, b292060             |
+|   Yudi Yamane de Azevedo    | Setup projeto com Raylib, renderização da grade de acordo com o estado do nó |                                      Boa                                       |            [1ccffce](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/1ccffceb1186b3d9fbcff0c66a690cc7074c153f), [b292060](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/b292060a043fd68fa13040a5df1e4f9bb7767a93)             |
 
 
 
