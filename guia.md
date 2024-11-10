@@ -15,6 +15,8 @@ App(CampoMinado)/
 ├── BFS/           # Lógica de expansão
 ├── Game/          # Controle do estado do jogo
 └── Main/          # Interface gráfica e loop principal
+└── MainBot/       # Interface para rodar Bot
+
 ```
 
 ## 2. Módulos do Sistema
@@ -247,6 +249,38 @@ putStrLn $ "           Lose: " ++ show (state'lose newState)
 putStrLn $ "            Cnt: " ++ show (state'cnt newState)
 ```
 
+### 7. Bot do Mineswepper
+### 7.1. Estrutura Principal
+
+- `data CellKnowledge`: Tipo de dado que armazena o conhecimento de cada célula do tabuleiro.
+```haskell
+        data CellKnowledge = CellKnowledge {
+            isBomb :: Bool,       -- Se a célula contém uma bomba
+            probability :: Float, -- Probabilidade de ser uma bomba
+            isRevealed :: Bool   -- Se a célula foi revelada
+        } deriving Show
+```
+
+- `initKnowledge :: Int -> [[CellKnowledge]]`:
+  Função que inicializa o conhecimento do **Bot** com uma probabilidade padrão (50%) de cada célula ser uma bomba e marca todas as células como não reveladas.
+
+- `updateKnowledge :: Grid -> [[CellKnowledge]] -> [[CellKnowledge]]`:
+  Atualiza o conhecimento das células com base no estado atual do tabuleiro. Se uma célula foi revelada ou tem uma bandeira, o conhecimento é ajustado.
+
+- `calculateBombProbability :: Grid -> [[CellKnowledge]] -> Coord -> Float`:
+  Calcula a probabilidade de uma célula ser uma bomba com base nas células adjacentes reveladas.
+
+- `getAdjacentCells :: Grid -> Coord -> [Coord]`:
+  Retorna as coordenadas das células adjacentes válidas de uma célula dada.
+
+- `chooseMove :: GameState -> [[CellKnowledge]] -> IO (Int, Int, Bool)`:
+  Escolhe a próxima jogada do **Bot**. O **Bot** prioriza movimentos seguros (probabilidade de bomba menor que 30%).
+
+- `playBot :: GameState -> IO GameState`:
+  Função principal que faz o **Bot** jogar. Ela chama a função **`playBotTurn`** recursivamente até que o jogo seja finalizado.
+
+- `playBotTurn :: GameState -> [[CellKnowledge]] -> IO GameState`:
+  Executa o turno do **Bot**. Ela escolhe o próximo movimento, atualiza o estado do jogo e continua jogando até que o jogo termine.
 
 
 
@@ -259,6 +293,7 @@ putStrLn $ "            Cnt: " ++ show (state'cnt newState)
 │   ├── BFS.hs
 │   ├── Game.hs
 │   └── Main.hs
+│   └── MainBot.hs
 ├── assets/
 │   └── sprite.gif
 └── README.md

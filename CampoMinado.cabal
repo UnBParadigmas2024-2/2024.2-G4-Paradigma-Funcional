@@ -69,7 +69,7 @@ executable CampoMinado
 
     -- Other library packages from which modules are imported.
     build-depends:    
-        base >= 4.18 && < 4.19,
+        base >= 4.17 && < 4.19,
         h-raylib,
         random, 
         random-shuffle,
@@ -87,3 +87,20 @@ executable CampoMinado
 
     -- Base language which the package is written in.
     default-language: Haskell2010
+
+executable CampoMinadoBot
+  main-is:          MainBot.hs
+  build-depends:    
+    base >= 4.17 && < 4.19,
+    h-raylib,
+    random, 
+    random-shuffle,
+    time
+  hs-source-dirs:   app
+  other-modules:
+    Paths_CampoMinado,
+    BFS,
+    Game,
+    Grid,
+    Node
+  default-language: Haskell2010
