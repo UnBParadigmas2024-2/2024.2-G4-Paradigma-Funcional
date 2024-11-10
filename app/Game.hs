@@ -19,7 +19,8 @@ module Game
     ) where
 
 import Grid (generateGrid, revealBombs, Grid)
-import BFS (bfs, dfs)
+import BFS (bfs)
+import DFS (dfs)
 import Node (Node(..), bomba)
 import Data.Time.Clock (UTCTime, getCurrentTime, diffUTCTime)
 
