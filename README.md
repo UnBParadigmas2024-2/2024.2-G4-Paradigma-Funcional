@@ -7,16 +7,16 @@
 ## Alunos
 |Matrícula | Aluno |
 | :--: | :--: |
-| 20/2045624 | Abdul hannan	|
-| 21/1029147 | Arthur de Melo Viana	|
-| 19/0026758 | Deivid Carvalho |	
-| 21/1062867 | Felipe de Jesus Rodrigues |
-| 17/0108341 | Levi de Oliveira Queiroz |	
-| 17/0111059 | Matheus Fonseca Sousa |	
-| 19/0093331 | Matheus Costa Gomes |	
-| 21/2005444 | Pedro fonseca Cruz	|
+| 20/2045624 | [Abdul hannan](https://github.com/hannanhunny01)	|
+| 21/1029147 | [Arthur de Melo Viana](https://github.com/arthurmlv)	|
+| 19/0026758 | [Deivid Carvalho](https://github.com/deivid-a1) |	
+| 21/1062867 | [Felipe de Jesus Rodrigues](https://github.com/felipeJRdev) |
+| 17/0108341 | [Levi de Oliveira Queiroz]() |	
+| 17/0111059 | [Matheus Fonseca Sousa](https://github.com/gatotabaco) |	
+| 19/0093331 | [Matheus Costa Gomes](https://github.com/mc-gomes) |	
+| 21/2005444 | [Pedro fonseca Cruz]()	|
 | 21/1029559 | [Rafael Brito Bosi Rodrigues](https://github.com/StrangeUnit28) |	
-| 16/0149410 | Yudi Yamane de Azevedo	| 
+| 16/0149410 | [Yudi Yamane de Azevedo](https://github.com/yudi-azvd)	| 
 
 
 ## Sobre 
@@ -119,8 +119,19 @@ TEMPO: +/- 15min
 ## Participações
 Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 |Nome do Membro | Contribuição | Significância da Contribuição para o Projeto (Excelente/Boa/Regular/Ruim/Nula) | Comprobatórios (ex. links para commits)
-| -- | -- | -- | -- |
-| Fulano  |  Programação dos Fatos da Base de Conhecimento Lógica | Boa | Commit tal (com link)
+| :--: | -- | :--: | :--: |
+| Fulano  |  Programação dos Fatos da Base de Conhecimento Lógica | Boa | Commit tal (com link) |
+| Abdul hannan |    |    |   |
+| Arthur de Melo Viana |    |    |   |
+| Deivid Carvalho |    |    |   |
+| Felipe de Jesus Rodrigues |    |    |   |
+| Levi de Oliveira Queiroz |    |    |   |	
+| Matheus Fonseca Sousa |    |    |   |	
+| Matheus Costa Gomes |    |    |   |	
+| Pedro fonseca Cruz	|    |    |   |
+| Rafael Brito Bosi Rodrigues |    |    |   |	
+| Yudi Yamane de Azevedo	|    |    |   | 
+
 
 
 ## Outros 
