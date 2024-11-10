@@ -12,6 +12,9 @@ gridSize = 8  -- Tamanho da grade
 difficulty :: String
 difficulty = "easy"  -- Nível de dificuldade
 
+structure :: String
+structure = "bfs"
+
 -- Função para imprimir o tabuleiro
 printCustomGrid :: [[Node]] -> IO ()
 printCustomGrid = mapM_ (putStrLn . unwords . map showCustomNode)
@@ -33,7 +36,7 @@ main = do
     putStrLn "Grid Initial:"
     
     -- Inicializa o jogo
-    state <- gameInit gridSize difficulty
+    state <- gameInit gridSize difficulty structure
     printCustomGrid (state'grid state)
     
     -- Jogo com o bot
