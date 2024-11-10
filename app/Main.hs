@@ -99,7 +99,7 @@ buttonPath = "assets/button.png"
 main :: IO ()
 main = do
   withWindow
-    1600
+    800
     800
     "Campo Minado"
     60
@@ -127,8 +127,8 @@ main = do
                       structureFontSize = 20
                   -- Configuração dos botões e seus respectivos parâmetros
                   let buttonStructureConfigs = 
-                        [ ("Fila", 100, "bfs")       -- Texto, Posição X, Estrutura desejada
-                        , ("Pilha", 300, "dfs")   
+                        [ ("Fila", 250, "bfs")       -- Texto, Posição X, Estrutura desejada
+                        , ("Pilha", 450, "dfs")   
                         ]
                   -- Função auxiliar para desenhar o botão e detectar cliques
                   let drawAndCheckbuttonStructureClick (text, buttonStructureX, structure) = do
@@ -401,7 +401,7 @@ main = do
                       drawText "Reiniciar" (buttonX + 10) (buttonY + 8) 20 black
                     
                     -- Campo invisível, debug apenas
-                    forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
+                    {-forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
                         forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
                           ( do
                               let x = fromIntegral (800 + (colIndex * spriteBombSize)) :: Float
@@ -418,7 +418,7 @@ main = do
                                 (Rectangle x y ((rectangle'width (rect))*scale) 
                                 ((rectangle'height (rect))*scale)) 
                                 (Vector2 0 0) 0 white
-                          )
+                          )-}
                   )
                 return (newState, GameScreen)
           )
