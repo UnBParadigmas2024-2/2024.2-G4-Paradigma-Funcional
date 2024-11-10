@@ -3,30 +3,33 @@ module BFS where
 import Node (Node(..), bomba)
 import Node (Coord)
 import Grid (Grid, check, updateGrid, showFlag)
+import Control.Concurrent (threadDelay)
 
 bfs :: Grid -> Int -> Coord -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
 bfs grid size (i, j) cnt win flag = bfsRec grid [(i, j)] size cnt win flag
 
 bfsRec :: Grid -> [Coord] -> Int -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
 bfsRec grid [] _ cnt _ _ = return (True, cnt, grid)  -- Se a fila está vazia, acabou
-bfsRec grid ((i, j):queue) size cnt win flag
-    | flag == True && not (visited node) = do
+bfsRec grid ((i, j):queue) size cnt win flag = do
+    if flag && not (visited node)
+    then do
         let gridWithFlag = showFlag grid i j
         bfsRec gridWithFlag queue size cnt win True
-    | dataNode node == bomba = return (False, cnt, grid)  -- Bomba, perdeu
-    | cnt == win = return (True, cnt, grid)  -- Se o contador atingir a quantidade total de células visitáveis, ganhou
-    | visited node = bfsRec grid queue size cnt win False  -- Se o nó já foi visitado, segue pro prox
-    | dataNode node /= 0 = do  -- Se for número, não visita mais nada
+    else if dataNode node == bomba
+    then return (False, cnt, grid)  -- Bomba, perdeu
+    else if cnt == win
+    then return (True, cnt, grid)  -- Se o contador atingir a quantidade total de células visitáveis, ganhou
+    else if visited node
+    then bfsRec grid queue size cnt win False  -- Se o nó já foi visitado, segue pro prox
+    else if dataNode node /= 0
+    then do  -- Se for número, não visita mais nada
         let newGrid = updateGrid grid i j
-            newCnt
-                | not (visited node) = cnt + 1
-                | otherwise = cnt
+            newCnt = if not (visited node) then cnt + 1 else cnt
+        threadDelay 5000
         bfsRec newGrid queue size newCnt win False
-    | otherwise = do
+    else do
         let newGrid = updateGrid grid i j
-            newCnt
-                | not (visited node) = cnt + 1
-                | otherwise = cnt
+            newCnt = if not (visited node) then cnt + 1 else cnt
         let expandedQueue = expandQueue newGrid size (i, j) queue
         bfsRec newGrid expandedQueue size newCnt win False
   where
@@ -55,6 +58,7 @@ dfsRec grid ((i, j):stack) size cnt win flag
     | dataNode node /= 0 = do  -- Se for número, não visita mais nada
         let newGrid = updateGrid grid i j
             newCnt = if not (visited node) then cnt + 1 else cnt
+        threadDelay 5000
         dfsRec newGrid stack size newCnt win False
     | otherwise = do
         let newGrid = updateGrid grid i j
@@ -64,7 +68,7 @@ dfsRec grid ((i, j):stack) size cnt win flag
   where
     node = grid !! i !! j  -- Obtém o nó correspondente à coordenada (i, j)
 
--- Expande a pilha (LIFO) ao invés da fila (FIFO)
+-- Expande a pilha (LIFO)
 expandStack :: Grid -> Int -> Coord -> [Coord] -> [Coord]
 expandStack grid size (x, y) stack = 
     foldr (\(dx, dy) acc -> 
