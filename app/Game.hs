@@ -1,17 +1,37 @@
-module Game where
+module Game 
+    ( GameState(..)  -- Exporta o tipo de dado e seus construtores
+    , gameInit
+    , gameUpdate
+    , gameRestart
+    , state'grid
+    , state'cnt
+    , state'finished
+    , state'win
+    , state'lose
+    , state'remainingBombs
+    , state'difficulty
+    , state'startTime    -- Novo campo exportado
+    , state'currentTime  -- Novo campo exportado
+    , playGame
+    , printGrid
+    ) where
 
 import Grid (generateGrid, revealBombs, Grid)
 import BFS (bfs)
 import Node (Node(..), bomba)
+import Data.Time.Clock (UTCTime, getCurrentTime, diffUTCTime)
 
 data GameState = GameState {
     state'grid     :: Grid,
-    state'size     :: Int,      -- Dimensões da grade
-    state'cnt      :: Int,      -- Qtd de células reveladas
-    state'win      :: Int,      -- Qtd de células reveladas pra ganhar
+    state'size     :: Int,
+    state'cnt      :: Int,
+    state'win      :: Int,
     state'remainingBombs :: Int, 
     state'finished :: Bool,
-    state'lose     :: Bool
+    state'lose     :: Bool,
+    state'difficulty :: String,
+    state'startTime :: UTCTime,  -- Novo campo para armazenar o tempo inicial
+    state'currentTime :: Int     -- Novo campo para armazenar o tempo decorrido em segundos
 }
 
 
@@ -29,31 +49,40 @@ getBombChance "normal" size = max 2 (size * size `div` 5)
 getBombChance "hard" size = max 3 (size * size `div` 3)    -- quanto menor o valor, maior a dificuldade
 getBombChance _ size = max 2 (size * size `div` 5)         
 
+gameRestart :: GameState -> IO GameState
+gameRestart state = do
+    startTime <- getCurrentTime
+    newState <- gameInit (state'size state) (state'difficulty state)
+    return newState
 
-gameInit :: Int -> String -> IO (GameState)
+gameInit :: Int -> String -> IO GameState
 gameInit size difficulty = do
-    let bombChance = getBombChance difficulty size  -- Passa o tamanho do grid
-    (grid, cntBombs) <- generateGrid size bombChance  -- Gerar o grid com base no número de bombas
-    let win = size * size - cntBombs  -- Condição de vitória
-
-    return (GameState grid size 0 win cntBombs False False)
+    let bombChance = getBombChance difficulty size
+    (grid, cntBombs) <- generateGrid size bombChance
+    let win = size * size - cntBombs
+    startTime <- getCurrentTime
+    
+    return (GameState grid size 0 win cntBombs False False difficulty startTime 0)
 
 gameUpdate :: GameState -> Int -> Int -> Bool -> IO (GameState)
 gameUpdate state row col isSettingFlag = do
     (res, newCnt, newGrid) <- bfs (state'grid  state) (state'size  state) (row, col) (state'cnt state) (state'win state) isSettingFlag
 
-    let hasWon   = (state'win state) == (state'cnt state)
-    let hasLost  = not hasWon && not res
-    let finished = hasLost || hasWon 
+    let hasWon = (state'win state) == (state'cnt state)
+    let hasLost = not hasWon && not res
+    let finished = hasLost || hasWon
 
-    return $ GameState
-        newGrid
-        (state'size state)
-        newCnt
+    return $ GameState 
+        newGrid 
+        (state'size state) 
+        newCnt 
         (state'win state)
-        (state'remainingBombs state)
-        finished
+        (state'remainingBombs state) 
+        finished 
         hasLost
+        (state'difficulty state)
+        (state'startTime state)
+        (state'currentTime state)
 
 
 playGame :: Int -> String -> IO ()

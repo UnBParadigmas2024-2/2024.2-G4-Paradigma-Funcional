@@ -5,7 +5,12 @@ module Main where
 -- Assets do campo minado
 -- https://github.com/BrandonDusseau/minesweeper-classic
 
-import Control.Monad (forM_, when)
+import Control.Monad (forM_, when)  -- Adicionar 'when'
+import Raylib.Core.Shapes (drawRectangle)  -- Para desenhar o retângulo
+import Raylib.Core.Text (drawText)  -- Para desenhar texto
+import Data.Time.Clock (getCurrentTime, diffUTCTime)
+import Text.Printf (printf)
+
 import Paths_CampoMinado (getDataFileName)
 import Raylib.Core (clearBackground, isMouseButtonPressed, getMousePosition, setTargetFPS, initWindow, closeWindow, endDrawing, beginDrawing, isKeyPressed)
 import Raylib.Core.Text (drawText)
@@ -18,7 +23,8 @@ import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), p
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
-import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'remainingBombs)
+
+import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'remainingBombs,state'startTime, state'currentTime, printGrid, gameRestart)
 import Node (Node(..), bomba)
 import Grid (Grid)
 
@@ -74,6 +80,12 @@ getRectForHiddenCellSprite grid row col = rect
       | bombsAround == 7 = spriteBombCount7
       | bombsAround == 8 = spriteBombCount8
       | otherwise        = spriteError
+
+formatTime :: Int -> String
+formatTime seconds = 
+    let minutes = seconds `div` 60
+        remainingSeconds = seconds `mod` 60
+    in printf "%02d:%02d" minutes remainingSeconds
 
 spritePath :: String
 spritePath = "assets/sprite.gif"
@@ -134,29 +146,63 @@ main = do
                 validClick = mouseClicked && row >= 0 && col >= 0 &&
                             row < length (state'grid state) &&
                             col < length (head (state'grid state))
+            
+             -- Atualizar o tempo
+            currentTimeUTC <- getCurrentTime
+            let currentTime = floor $ diffUTCTime currentTimeUTC (state'startTime state)
+
+            let stateWithTime = state { state'currentTime = currentTime }
+
+            -- Verificar clique no botão de reiniciar
+            let buttonX = 250
+                buttonY = 20
+                buttonWidth = 100
+                buttonHeight = 30
+                restartButtonArea = (mouseX >= buttonX && mouseX <= buttonX + buttonWidth) && 
+                                  (mouseY >= buttonY && mouseY <= buttonY + buttonHeight)
+                clickedRestartButton = mouseClicked && restartButtonArea && 
+                                     state'finished state
+            
 
             -- 2. Atualizar jogo
-            newState <- if validClick
-                        then gameUpdate state row col rightButtonClicked
-                        else return state
-            if validClick then do
+            newState <- if clickedRestartButton
+                       then gameRestart stateWithTime
+                       else if state'finished stateWithTime
+                            then return stateWithTime
+                            else if validClick
+                                 then gameUpdate stateWithTime row col rightButtonClicked
+                                 else return stateWithTime
+
+            -- Exibir informações do estado atual se houver um clique válido
+            when validClick $ do
               putStrLn $ "-------------------------- "
               putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs newState)
               putStrLn $ "       Finished: " ++ show (state'finished newState)
               putStrLn $ "           Lose: " ++ show (state'lose newState)
               putStrLn $ "            Cnt: " ++ show (state'cnt newState)
               if (state'cnt newState) == (state'win newState) then
-                putStrLn "               Voce ganhou!!"
+                putStrLn "               Você ganhou!!"
               else if (state'lose newState) then
-                putStrLn "               Voce perdeu!!"
+                putStrLn "               Você perdeu!!"
               else 
                 putStrLn "                Game running"
-            else return ()
 
             -- 3. Renderizar
-            drawing
-              ( do
+            drawing $ do
                 clearBackground black
+
+                -- Renderizar o contador de tempo
+                let timeStr = formatTime (state'currentTime newState)
+                    timerX = 20  
+                    timerY = 20  
+                    timerWidth = 120  
+                    timerHeight = 40  
+                    fontSize = 30  
+                
+                -- Fundo do timer
+                drawRectangle timerX timerY timerWidth timerHeight white
+                -- Texto do timer
+                drawText timeStr (timerX + 15) (timerY + 10) fontSize black
 
                 -- Campo visível
                 forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
@@ -183,6 +229,11 @@ main = do
                             (Vector2  0 0) 0 white
                       )
 
+                -- Renderizar botão de reiniciar quando o jogo terminar
+                when (state'finished newState) $ do
+                    drawRectangle buttonX buttonY buttonWidth buttonHeight white
+                    drawText "Reiniciar" (buttonX + 10) (buttonY + 8) 20 black
+
                 -- Campo invisível, debug apenas
                 forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
                     forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
@@ -191,7 +242,6 @@ main = do
                               y = fromIntegral (100 + (rowIndex * spriteBombSize)) :: Float
                               rect = getRectForHiddenCellSprite (state'grid newState) rowIndex colIndex
                           
-                          -- if not visited
                           drawTexturePro texture spriteVisited 
                             (Rectangle x y ((rectangle'width (spriteVisited))*scale) 
                             ((rectangle'height (spriteVisited))*scale)) 
@@ -202,13 +252,11 @@ main = do
                             ((rectangle'height (rect))*scale)) 
                             (Vector2 0 0) 0 white
                       )
-              )
 
             return newState
           )
           initialState
     )
-
 
 {-
 
