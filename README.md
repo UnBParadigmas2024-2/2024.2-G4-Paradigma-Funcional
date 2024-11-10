@@ -54,6 +54,7 @@ O Cabal geralmente é incluído com a instalação do Haskell, mas caso não est
 - GHC 9.6.6
 - GHCUP 0.1.30.0 (opcional)
 - Raylib (através do pacote h-raylib)
+- base 4.18 && < 4.19
 
 ### h-raylib
 Para instalação das dependências do h-raylib, consulte a documentção 
