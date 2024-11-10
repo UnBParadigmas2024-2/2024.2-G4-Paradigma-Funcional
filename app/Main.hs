@@ -23,7 +23,7 @@ import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), p
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
-import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'size, state'remainingBombs,state'startTime, state'currentTime, printGrid, gameRestart)
+import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'size, state'remainingBombs,state'startTime, state'currentTime, state'structureType, printGrid, gameRestart)
 import Node (Node(..), bomba)
 import Grid (Grid)
 import GHC.Generics (S)
@@ -89,7 +89,7 @@ formatTime seconds =
     in printf "%02d:%02d" minutes remainingSeconds
 
 -- Define os tipos de telas
-data Screen = SetGridSizeMenu | SetDifficultyMenu | GameScreen deriving Eq
+data Screen = SetStructureMenu | SetGridSizeMenu | SetDifficultyMenu | GameScreen deriving Eq
 
 spritePath :: String
 spritePath = "assets/sprite.gif"
@@ -110,12 +110,71 @@ main = do
         let scale = 2 :: Float
         let spriteBombSize = (16 * round (scale)) :: Int
         let gridOffset = 100
-        initialState <- gameInit 10 "easy"
-        let initialScreen = SetGridSizeMenu
+        initialState <- gameInit 10 "easy" "bfs"
+        let initialScreen = SetStructureMenu
 
         -- Controle da tela atual com estado encapsulado em uma tupla
         whileWindowOpen_ (\(state, screen) -> do
             case screen of
+              SetStructureMenu -> do
+                drawing $ do
+                  clearBackground black
+                  -- Configuração dos três botões
+                  let buttonStructureWidth = 150
+                      buttonStructureHeight = 75
+                      buttonStructureSpacing = 20
+                      buttonStructureY = 300
+                      structureFontSize = 20
+                  -- Configuração dos botões e seus respectivos parâmetros
+                  let buttonStructureConfigs = 
+                        [ ("Fila", 100, "bfs")       -- Texto, Posição X, Estrutura desejada
+                        , ("Pilha", 300, "dfs")   
+                        ]
+                  -- Função auxiliar para desenhar o botão e detectar cliques
+                  let drawAndCheckbuttonStructureClick (text, buttonStructureX, structure) = do
+                        -- Posições para centralizar o texto no botão
+                        let textSizeX = buttonStructureX + (buttonStructureWidth `div` 2) - (length text * structureFontSize `div` 4)
+                            textSizeY = buttonStructureY + (buttonStructureHeight `div` 2) - (structureFontSize `div` 2)
+                        
+                        -- Desenha o botão na posição especificada
+                        drawTexturePro buttonTexture 
+                          (Rectangle 0 0 793 205) 
+                          (Rectangle (fromIntegral buttonStructureX) (fromIntegral buttonStructureY) 
+                                    (fromIntegral buttonStructureWidth) (fromIntegral buttonStructureHeight))
+                          (Vector2 0 0) 0 white
+
+                        -- Desenha o texto no botão
+                        drawText text textSizeX textSizeY structureFontSize black
+
+                        -- Verifica se o botão foi clicado
+                        mouseStructureX <- getMouseX
+                        mouseStructureY <- getMouseY
+                        leftMouseStructureClicked <- isMouseButtonPressed MouseButtonLeft
+                        let isbuttonStructureClicked = leftMouseStructureClicked &&
+                              mouseStructureX >= buttonStructureX &&
+                              mouseStructureX <= buttonStructureX + buttonStructureWidth &&
+                              mouseStructureY >= buttonStructureY &&
+                              mouseStructureY <= buttonStructureY + buttonStructureHeight
+                        
+                        -- Se o botão foi clicado, inicia o jogo com o estado inicial
+                        if isbuttonStructureClicked
+                          then do
+                            let updatedState = state { state'structureType = structure }
+                            return (Just (updatedState, SetGridSizeMenu)) -- Retorna a próxima tela menu 
+                          else return Nothing
+
+                          -- Desenha cada botão e verifica cliques
+                  result <- foldM (\acc btnConfig -> 
+                            case acc of
+                              Just val -> return (Just val) -- Já encontrou o botão clicado
+                              Nothing -> drawAndCheckbuttonStructureClick btnConfig) 
+                            Nothing buttonStructureConfigs
+
+                  -- Decide o próximo estado com base na detecção de clique
+                  case result of
+                    Just gameState -> return gameState
+                    Nothing -> return (state, SetStructureMenu) -- Se nenhum botão foi clicado, permanece no menu
+
               SetGridSizeMenu -> do
                 drawing $ do
                   clearBackground black
@@ -222,7 +281,8 @@ main = do
                         if isButtonClicked
                           then do
                             let gridSize = state'size state
-                            initialState <- gameInit gridSize difficulty
+                            let structure = state'structureType state
+                            initialState <- gameInit gridSize difficulty structure
                             return (Just (initialState, GameScreen)) -- Retorna o estado do jogo e tela
                           else return Nothing
 

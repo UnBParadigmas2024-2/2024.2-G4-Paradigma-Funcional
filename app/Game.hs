@@ -4,6 +4,7 @@ module Game
     , gameUpdate
     , gameRestart
     , state'grid
+    , state'size
     , state'cnt
     , state'finished
     , state'win
@@ -12,12 +13,13 @@ module Game
     , state'difficulty
     , state'startTime    -- Novo campo exportado
     , state'currentTime  -- Novo campo exportado
-    , playGame
+    , state'structureType
+    , playGameBFS
     , printGrid
     ) where
 
 import Grid (generateGrid, revealBombs, Grid)
-import BFS (bfs)
+import BFS (bfs, dfs)
 import Node (Node(..), bomba)
 import Data.Time.Clock (UTCTime, getCurrentTime, diffUTCTime)
 
@@ -31,16 +33,9 @@ data GameState = GameState {
     state'lose     :: Bool,
     state'difficulty :: String,
     state'startTime :: UTCTime,  -- Novo campo para armazenar o tempo inicial
-    state'currentTime :: Int     -- Novo campo para armazenar o tempo decorrido em segundos
+    state'currentTime :: Int,     -- Novo campo para armazenar o tempo decorrido em segundos
+    state'structureType :: String
 }
-
-
--- Função para pedir o nível de dificuldade
-askDifficulty :: IO String
-askDifficulty = do
-    putStrLn "Choose difficulty level (easy, normal, hard):"
-    difficulty <- getLine
-    return difficulty
 
 -- Função para adaptar a geração de bombas com base na dificuldade
 getBombChance :: String -> Int -> Int
@@ -52,50 +47,71 @@ getBombChance _ size = max 2 (size * size `div` 5)
 gameRestart :: GameState -> IO GameState
 gameRestart state = do
     startTime <- getCurrentTime
-    newState <- gameInit (state'size state) (state'difficulty state)
+    newState <- gameInit (state'size state) (state'difficulty state) (state'structureType state)
     return newState
 
-gameInit :: Int -> String -> IO GameState
-gameInit size difficulty = do
+gameInit :: Int -> String -> String -> IO GameState
+gameInit size difficulty structure = do
     let bombChance = getBombChance difficulty size
     (grid, cntBombs) <- generateGrid size bombChance
     let win = size * size - cntBombs
     startTime <- getCurrentTime
+    let structureType = structure
     
-    return (GameState grid size 0 win cntBombs False False difficulty startTime 0)
+    return (GameState grid size 0 win cntBombs False False difficulty startTime 0 structureType)
 
 gameUpdate :: GameState -> Int -> Int -> Bool -> IO (GameState)
 gameUpdate state row col isSettingFlag = do
-    (res, newCnt, newGrid) <- bfs (state'grid  state) (state'size  state) (row, col) (state'cnt state) (state'win state) isSettingFlag
+    if (state'structureType state == "bfs")
+        then do
+            (res, newCnt, newGrid) <- bfs (state'grid  state) (state'size  state) (row, col) (state'cnt state) (state'win state) isSettingFlag
+            let hasWon = (state'win state) == newCnt
+            let hasLost = not hasWon && not res
+            let finished = hasLost || hasWon
 
-    let hasWon = (state'win state) == (state'cnt state)
-    let hasLost = not hasWon && not res
-    let finished = hasLost || hasWon
+            return $ GameState 
+                newGrid 
+                (state'size state) 
+                newCnt 
+                (state'win state)
+                (state'remainingBombs state) 
+                finished 
+                hasLost
+                (state'difficulty state)
+                (state'startTime state)
+                (state'currentTime state)
+                (state'structureType state)
+        else do
+            (res, newCnt, newGrid) <- dfs (state'grid state) (state'size state) (row, col) (state'cnt state) (state'win state) isSettingFlag
+            let hasWon = (state'win state) == newCnt
+            let hasLost = not hasWon && not res
+            let finished = hasLost || hasWon
 
-    return $ GameState 
-        newGrid 
-        (state'size state) 
-        newCnt 
-        (state'win state)
-        (state'remainingBombs state) 
-        finished 
-        hasLost
-        (state'difficulty state)
-        (state'startTime state)
-        (state'currentTime state)
+            return $ GameState 
+                newGrid 
+                (state'size state) 
+                newCnt 
+                (state'win state)
+                (state'remainingBombs state) 
+                finished 
+                hasLost
+                (state'difficulty state)
+                (state'startTime state)
+                (state'currentTime state)
+                (state'structureType state)
 
 
-playGame :: Int -> String -> IO ()
-playGame size difficulty = do
+playGameBFS :: Int -> String -> IO ()
+playGameBFS size difficulty = do
     let bombChance = getBombChance difficulty size  -- Passa o tamanho do grid
     (grid, cntBombs) <- generateGrid size bombChance  -- Gerar o grid com base no número de bombas
     let win = size * size - cntBombs  -- Condição de vitória
 
     -- Inicia o loop de jogo, passando o número de bombas
-    gameLoop grid size 0 win cntBombs
+    gameLoopBFS grid size 0 win cntBombs
 
-gameLoop :: Grid -> Int -> Int -> Int -> Int -> IO ()
-gameLoop grid size cnt win cntBombs = do
+gameLoopBFS :: Grid -> Int -> Int -> Int -> Int -> IO ()
+gameLoopBFS grid size cnt win cntBombs = do
     -- Exibe o número de bombas antes de cada movimento
     putStrLn $ "Number of bombs: " ++ show cntBombs
     printGrid grid
@@ -108,10 +124,10 @@ gameLoop grid size cnt win cntBombs = do
     let flag = if length userInput <= 2 then False else True
 
     (res, newCnt, newGrid) <- bfs grid size (row, col) cnt win flag
-    gameLoop' newCnt newGrid res cntBombs
+    gameLoopBFS' newCnt newGrid res cntBombs
 
   where
-    gameLoop' newCnt newGrid res cntBombs
+    gameLoopBFS' newCnt newGrid res cntBombs
       | newCnt == win = do
           printGrid newGrid
           putStrLn "You win!"
@@ -119,7 +135,7 @@ gameLoop grid size cnt win cntBombs = do
           let finalGrid = revealBombs newGrid  -- Revela as bombas no grid final
           printGrid finalGrid
           putStrLn "You lose!"
-      | otherwise = gameLoop newGrid size newCnt win cntBombs  -- Continua o jogo com o novo grid e contador
+      | otherwise = gameLoopBFS newGrid size newCnt win cntBombs  -- Continua o jogo com o novo grid e contador
 
 -- Imprime o grid
 printGrid :: Grid -> IO ()
@@ -131,10 +147,3 @@ printGrid = mapM_ (putStrLn . unwords . map showNode)
         | d == bomba = "*"  -- Mostrar a bomba
         | otherwise = show d
 
--- Função main
-main :: IO ()
-main = do
-    putStrLn "Enter the grid size:"
-    size <- readLn :: IO Int
-    difficulty <- askDifficulty
-    playGame size difficulty
