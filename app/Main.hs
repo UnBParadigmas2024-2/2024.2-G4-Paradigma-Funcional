@@ -18,7 +18,7 @@ import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), p
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
-import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'remainingBombs, printGrid)
+import Game (gameInit, gameUpdate, state'grid, state'cnt, state'finished, state'win, state'lose, state'remainingBombs, printGrid, state'size)
 import Node (Node(..), bomba)
 import Grid (Grid)
 import GHC.Generics (S)
@@ -151,8 +151,8 @@ main = do
                         -- Se o botão foi clicado, inicia o jogo com o estado inicial
                         if isButtonSizeClicked
                           then do
-                            initialState <- gameInit gridSize ""
-                            return (Just (initialState, SetDifficultyMenu)) -- Retorna a próxima tela menu 
+                            let updatedState = state { state'size = gridSize }
+                            return (Just (updatedState, SetDifficultyMenu)) -- Retorna a próxima tela menu 
                           else return Nothing
 
                   -- Desenha cada botão e verifica cliques
@@ -212,7 +212,8 @@ main = do
                         -- Se o botão foi clicado, inicia o jogo com o estado inicial
                         if isButtonClicked
                           then do
-                            initialState <- gameInit 10 difficulty
+                            let gridSize = state'size state
+                            initialState <- gameInit gridSize difficulty
                             return (Just (initialState, GameScreen)) -- Retorna o estado do jogo e tela
                           else return Nothing
 
