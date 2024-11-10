@@ -64,11 +64,19 @@ updateGrid grid i j =
     in ys ++ ((xs ++ (newNode : xs')) : zs')
 
 -- Atualiza o estado do nó marcando que há uma bandeira
-showFlag :: Grid -> Int -> Int -> Grid
-showFlag grid i j = 
+insertFlag :: Grid -> Int -> Int -> Grid
+insertFlag grid i j = 
     let (ys, zs:zs') = splitAt i grid
         (xs, node:xs') = splitAt j zs
         newNode = node { hasFlag = True }
+    in ys ++ ((xs ++ (newNode : xs')) : zs')
+
+-- Atualiza o estado do nó retirando a sinalização de que há bandeira
+removeFlag :: Grid -> Int -> Int -> Grid
+removeFlag grid i j = 
+    let (ys, zs:zs') = splitAt i grid
+        (xs, node:xs') = splitAt j zs
+        newNode = node { hasFlag = False }
     in ys ++ ((xs ++ (newNode : xs')) : zs')
 
 -- Função para revelar bombas quando perde

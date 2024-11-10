@@ -2,7 +2,7 @@ module BFS where
 
 import Node (Node(..), bomba)
 import Node (Coord)
-import Grid (Grid, check, updateGrid, showFlag)
+import Grid (Grid, check, updateGrid, insertFlag, removeFlag)
 
 bfs :: Grid -> Int -> Coord -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
 bfs grid size (i, j) cnt win flag = bfsRec grid [(i, j)] size cnt win flag
@@ -10,9 +10,13 @@ bfs grid size (i, j) cnt win flag = bfsRec grid [(i, j)] size cnt win flag
 bfsRec :: Grid -> [Coord] -> Int -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
 bfsRec grid [] _ cnt _ _ = return (True, cnt, grid)  -- Se a fila está vazia, acabou
 bfsRec grid ((i, j):queue) size cnt win flag
-    | flag == True && not (visited node) = do
-        let gridWithFlag = showFlag grid i j
-        bfsRec gridWithFlag queue size cnt win True
+    | flag && not (visited node) = do
+        if not (hasFlag node) then do
+            let gridWithNewFlag = insertFlag grid i j
+            bfsRec gridWithNewFlag queue size cnt win True
+        else do
+            let gridWithOneLessFlag = removeFlag grid i j
+            bfsRec gridWithOneLessFlag queue size cnt win False
     | dataNode node == bomba = return (False, cnt, grid)  -- Bomba, perdeu
     | cnt == win = return (True, cnt, grid)  -- Se o contador atingir a quantidade total de células visitáveis, ganhou
     | visited node = bfsRec grid queue size cnt win False  -- Se o nó já foi visitado, segue pro prox
