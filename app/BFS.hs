@@ -11,12 +11,14 @@ bfsRec :: Grid -> [Coord] -> Int -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
 bfsRec grid [] _ cnt _ _ = return (True, cnt, grid)  -- Se a fila está vazia, acabou
 bfsRec grid ((i, j):queue) size cnt win flag
     | flag && not (visited node) = do
-        if not (hasFlag node) then do
+        if not (hasFlag node) then do  -- Insere nova bandeira
             let gridWithNewFlag = insertFlag grid i j
             bfsRec gridWithNewFlag queue size cnt win True
-        else do
+        else do                        -- Remove a bandeira
             let gridWithOneLessFlag = removeFlag grid i j
             bfsRec gridWithOneLessFlag queue size cnt win False
+    | not flag && (hasFlag node) = do  -- Caso clique onde há bandeira, não faz nada
+        bfsRec grid queue size cnt win False
     | dataNode node == bomba = return (False, cnt, grid)  -- Bomba, perdeu
     | cnt == win = return (True, cnt, grid)  -- Se o contador atingir a quantidade total de células visitáveis, ganhou
     | visited node = bfsRec grid queue size cnt win False  -- Se o nó já foi visitado, segue pro prox
