@@ -3,7 +3,6 @@ module BFS where
 import Node (Node(..), bomba)
 import Node (Coord)
 import Grid (Grid, check, updateGrid, insertFlag, removeFlag)
-import Control.Concurrent (threadDelay)
 
 bfs :: Grid -> Int -> Coord -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
 bfs grid size (i, j) cnt win flag = bfsRec grid [(i, j)] size cnt win flag
@@ -26,7 +25,6 @@ bfsRec grid ((i, j):queue) size cnt win flag
     | dataNode node /= 0 = do  -- Se for número, não visita mais nada
         let newGrid = updateGrid grid i j
             newCnt = if not (visited node) then cnt + 1 else cnt
-        threadDelay 5000
         bfsRec newGrid queue size newCnt win False
     | otherwise = do
         let newGrid = updateGrid grid i j

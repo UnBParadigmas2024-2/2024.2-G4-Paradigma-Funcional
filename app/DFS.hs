@@ -3,7 +3,6 @@ module DFS where
 import Node (Node(..), bomba)
 import Node (Coord)
 import Grid (Grid, check, updateGrid, insertFlag, removeFlag)
-import Control.Concurrent (threadDelay)
 
 
 -- Função principal DFS
@@ -29,7 +28,6 @@ dfsRec grid ((i, j):stack) size cnt win flag
     | dataNode node /= 0 = do  -- Se for número, não visita mais nada
         let newGrid = updateGrid grid i j
             newCnt = if not (visited node) then cnt + 1 else cnt
-        threadDelay 5000
         dfsRec newGrid stack size newCnt win False
     | otherwise = do
         let newGrid = updateGrid grid i j
