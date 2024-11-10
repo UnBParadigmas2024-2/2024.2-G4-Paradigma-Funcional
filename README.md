@@ -121,7 +121,7 @@ Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 |Nome do Membro | Contribuição | Significância da Contribuição para o Projeto (Excelente/Boa/Regular/Ruim/Nula) | Comprobatórios (ex. links para commits)
 | :--: | -- | :--: | :--: |
 | Fulano  |  Programação dos Fatos da Base de Conhecimento Lógica | Boa | Commit tal (com link) |
-| Abdul hannan |    |    |   |
+| Abdul hannan |    Criação do documento Guia.md para detalhar e explicar melhor todos os módulos e funções do projeto e criacao do bot de toma decisões basedo nas probabilidades, escolhendo células com menor risco (<0.3) e usa BFS para explorar células| Excelente   |   |
 | Arthur de Melo Viana |    |    |   |
 | Deivid Carvalho |    |    |   |
 | Felipe de Jesus Rodrigues |    |    |   |
