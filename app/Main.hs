@@ -80,7 +80,7 @@ getRectForHiddenCellSprite grid row col = rect
 
 
 -- Define os tipos de telas
-data Screen = MainMenu | GameScreen deriving Eq
+data Screen = SetGridSizeMenu | SetDifficultyMenu | GameScreen deriving Eq
 
 spritePath :: String
 spritePath = "assets/sprite.gif"
@@ -102,12 +102,73 @@ main = do
         let spriteBombSize = (16* round (scale)) :: Int
         let gridOffset = 100
         initialState <- (gameInit 10 "easy")
-        let initialScreen = MainMenu
+        let initialScreen = SetGridSizeMenu
 
         -- Controle da tela atual com estado encapsulado em uma tupla
         whileWindowOpen_ (\(state, screen) -> do
             case screen of
-              MainMenu -> do
+              SetGridSizeMenu -> do
+                drawing $ do
+                  clearBackground black
+                  -- Configuração dos três botões
+                  let buttonSizeWidth = 150
+                      buttonSizeHeight = 75
+                      buttonSizeSpacing = 20
+                      buttonSizeY = 300
+                      sizeFontSize = 20
+                  -- Configuração dos botões e seus respectivos parâmetros
+                  let buttonSizeConfigs = 
+                        [ ("10x10", 100, 10)       -- Texto, Posição X, tamanho GRID"
+                        , ("15x15", 300, 15)   
+                        , ("20x20", 500, 20)       
+                        ]
+                  -- Função auxiliar para desenhar o botão e detectar cliques
+                  let drawAndCheckButtonSizeClick (text, buttonSizeX, gridSize) = do
+                        -- Posições para centralizar o texto no botão
+                        let textSizeX = buttonSizeX + (buttonSizeWidth `div` 2) - (length text * sizeFontSize `div` 4)
+                            textSizeY = buttonSizeY + (buttonSizeHeight `div` 2) - (sizeFontSize `div` 2)
+                        
+                        -- Desenha o botão na posição especificada
+                        drawTexturePro buttonTexture 
+                          (Rectangle 0 0 793 205) 
+                          (Rectangle (fromIntegral buttonSizeX) (fromIntegral buttonSizeY) 
+                                    (fromIntegral buttonSizeWidth) (fromIntegral buttonSizeHeight))
+                          (Vector2 0 0) 0 white
+
+                        -- Desenha o texto no botão
+                        drawText text textSizeX textSizeY sizeFontSize black
+
+                        -- Verifica se o botão foi clicado
+                        mouseSizeX <- getMouseX
+                        mouseSizeY <- getMouseY
+                        leftMouseSizeClicked <- isMouseButtonPressed MouseButtonLeft
+                        let isButtonSizeClicked = leftMouseSizeClicked &&
+                              mouseSizeX >= buttonSizeX &&
+                              mouseSizeX <= buttonSizeX + buttonSizeWidth &&
+                              mouseSizeY >= buttonSizeY &&
+                              mouseSizeY <= buttonSizeY + buttonSizeHeight
+                        
+                        -- Se o botão foi clicado, inicia o jogo com o estado inicial
+                        if isButtonSizeClicked
+                          then do
+                            initialState <- gameInit gridSize ""
+                            return (Just (initialState, SetDifficultyMenu)) -- Retorna a próxima tela menu 
+                          else return Nothing
+
+                  -- Desenha cada botão e verifica cliques
+                  result <- foldM (\acc btnConfig -> 
+                            case acc of
+                              Just val -> return (Just val) -- Já encontrou o botão clicado
+                              Nothing -> drawAndCheckButtonSizeClick btnConfig) 
+                            Nothing buttonSizeConfigs
+
+                  -- Decide o próximo estado com base na detecção de clique
+                  case result of
+                    Just gameState -> return gameState
+                    Nothing -> return (state, SetGridSizeMenu) -- Se nenhum botão foi clicado, permanece no menu
+
+
+              SetDifficultyMenu -> do
                 drawing $ do
                   clearBackground black
                   -- Configuração dos três botões
@@ -118,12 +179,12 @@ main = do
                       fontSize = 20
                   -- Configuração dos botões e seus respectivos parâmetros
                   let buttonConfigs = 
-                        [ ("Easy", 100, 10, "easy")       -- Texto, Posição X, GRID, Dificuldade"
-                        , ("Normal", 300, 15, "normal")   
-                        , ("Hard", 500, 20, "hard")       
+                        [ ("Easy", 100, "easy")       -- Texto, Posição X, Dificuldade"
+                        , ("Normal", 300, "normal")   
+                        , ("Hard", 500, "hard")       
                         ]
                   -- Função auxiliar para desenhar o botão e detectar cliques
-                  let drawAndCheckButtonClick (text, buttonX, gridSize, difficulty) = do
+                  let drawAndCheckButtonClick (text, buttonX, difficulty) = do
                         -- Posições para centralizar o texto no botão
                         let textX = buttonX + (buttonWidth `div` 2) - (length text * fontSize `div` 4)
                             textY = buttonY + (buttonHeight `div` 2) - (fontSize `div` 2)
@@ -151,7 +212,7 @@ main = do
                         -- Se o botão foi clicado, inicia o jogo com o estado inicial
                         if isButtonClicked
                           then do
-                            initialState <- gameInit gridSize difficulty
+                            initialState <- gameInit 10 difficulty
                             return (Just (initialState, GameScreen)) -- Retorna o estado do jogo e tela
                           else return Nothing
 
@@ -165,7 +226,7 @@ main = do
                   -- Decide o próximo estado com base na detecção de clique
                   case result of
                     Just gameState -> return gameState
-                    Nothing -> return (state, MainMenu) -- Se nenhum botão foi clicado, permanece no menu
+                    Nothing -> return (state, SetDifficultyMenu) -- Se nenhum botão foi clicado, permanece no menu
 
               GameScreen -> do
                 -- 1. Input
