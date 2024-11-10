@@ -1,179 +1,268 @@
-## Especificação de Entradas e Saídas
+# Campo Minado - Documentação Técnica Completa
 
-
+ O jogo de campo minado (minesweeper) consiste em revelar células de um tabuleiro sem cair em bombas. O tabuleiro é composto por células, algumas das quais contêm bombas, e outras que indicam o número de bombas adjacentes. O objetivo é abrir todas as células seguras sem explodir uma bomba.
 
 ## Estrutura e Módulos
+## 1. Visão Geral da Arquitetura
 
-### 1. Módulo Tabuleiro
+O sistema é composto por módulos independentes que trabalham em conjunto para criar uma experiência de jogo completa. A arquitetura segue um padrão modular com Paradigma funcional com separação clara de responsabilidades.
 
-1. **Tabuleiro** (`Grid`)
-   - Geração do campo minado com bombas aleatórias.
-   - Indicação do número de minas adjacentes a cada célula.
-   - Controle do estado de cada célula (bomba, número ou vazia).
-   - Controle do tabuleiro visível e do tabuleiro solução.
-   - Atualização de células conforme interações do usuário ou do Bot.
+### 1.1. Estrutura de Módulos
+```
+App(CampoMinado)/
+├── Node/           # Definição básica das células
+├── Grid/          # Gerenciamento do tabuleiro
+├── BFS/           # Lógica de expansão
+├── Game/          # Controle do estado do jogo
+└── Main/          # Interface gráfica e loop principal
+```
 
-2. **Lógica de Busca** (`BFS`)
-   - Implementação da lógica de expansão (busca em largura) para abrir células vazias.
-   - Verificação de vitórias e derrotas.
-   - Expansão de células adjacentes de forma eficiente.
+## 2. Módulos do Sistema
 
-3. **Nodo** (`Node`)
-   - Estrutura de dados para cada célula, com informação sobre conteúdo (bomba ou número) e estado (visitado ou não).
+### 2.1. Node (Células)
+#### 2.1.1. Estrutura Principal
+```haskell
+data Node = Node { 
+    dataNode :: Int,    -- Conteúdo da célula (-1 para bomba, 0-8 para contagem)
+    visited :: Bool,    -- Status de visitação
+    hasFlag :: Bool     -- Indica se há bandeira
+} deriving Show
+```
 
----
+#### 2.1.2. Tipos e Constantes
+```haskell
+type Coord = (Int, Int)  -- Coordenadas no tabuleiro
+bomba :: Int = -1        -- Valor que representa uma bomba
+```
+
+#### 2.1.3. Estados Possíveis de uma Célula
+- Não visitada sem bandeira
+- Não visitada com bandeira
+- Visitada vazia (0 bombas adjacentes)
+- Visitada com número (1-8 bombas adjacentes)
+- Visitada com bomba
+
+### 2.2. Grid (Tabuleiro)
+#### 2.2.1. Tipo Principal
+```haskell
+type Grid = [[Node]]  -- Matriz de nodos
+```
+
+#### 2.2.2. Funções Principais
+```haskell
+generateGrid :: Int -> Int -> IO (Grid, Int)
+-- Gera tabuleiro com tamanho e número de bombas específicos
+-- Retorna o grid e o número total de bombas
+
+countAdjacentBombs :: Grid -> Int -> Grid
+-- Calcula e atualiza o número de bombas adjacentes para cada célula
+
+check :: Grid -> Int -> Coord -> Bool
+-- Valida se uma coordenada é válida e pode ser revelada
+
+updateGrid :: Grid -> Int -> Int -> Grid
+-- Marca uma célula como visitada
+
+showFlag :: Grid -> Int -> Int -> Grid
+-- Coloca/remove uma bandeira em uma célula
+
+revealBombs :: Grid -> Grid
+-- Revela todas as bombas (usado ao perder o jogo)
+```
+
+#### 2.2.3. Processo de Geração do Tabuleiro
+1. Seleção aleatória de posições para bombas
+2. Criação da matriz inicial
+3. Cálculo de bombas adjacentes
+4. Remoção de duplicatas para garantir distribuição única
+
+### 2.3. BFS (Busca em Largura)
+#### 2.3.1. Função Principal
+```haskell
+bfs :: Grid -> Int -> Coord -> Int -> Int -> Bool -> IO (Bool, Int, Grid)
+-- Parâmetros:
+--   Grid atual
+--   Tamanho do tabuleiro
+--   Coordenada selecionada
+--   Contador atual
+--   Meta para vitória
+--   Flag de marcação
+-- Retorno:
+--   Status do jogo
+--   Novo contador
+--   Grid atualizado
+```
+
+#### 2.3.2. Lógica de Expansão
+1. Verifica se a célula atual é bomba
+2. Se for célula vazia (0), expande para vizinhos
+3. Se for número, apenas revela
+4. Atualiza contador de células reveladas
+5. Verifica condições de vitória
+
+#### 2.3.3. Algoritmo de Expansão
+```haskell
+expandQueue :: Grid -> Int -> Coord -> [Coord] -> [Coord]
+-- Expande a busca para células adjacentes válidas
+-- Direções de expansão: Norte, Sul, Leste, Oeste
+```
+
+### 2.4. Game (Controle do Jogo)
+#### 2.4.1. Estado do Jogo
+```haskell
+data GameState = GameState {
+    state'grid :: Grid,              -- Tabuleiro atual
+    state'size :: Int,               -- Dimensões
+    state'cnt :: Int,                -- Células reveladas
+    state'win :: Int,                -- Meta para vitória
+    state'remainingBombs :: Int,     -- Bombas restantes
+    state'finished :: Bool,          -- Jogo finalizado
+    state'lose :: Bool               -- Status de derrota
+}
+```
+
+#### 2.4.2. Funções de Controle
+```haskell
+gameInit :: Int -> String -> IO GameState
+-- Inicializa novo jogo com tamanho e dificuldade
+
+gameUpdate :: GameState -> Int -> Int -> Bool -> IO GameState
+-- Processa ações do jogador e atualiza estado
+
+getBombChance :: String -> Int -> Int
+-- Calcula número de bombas baseado na dificuldade
+```
+
+#### 2.4.3. Níveis de Dificuldade
+- **Fácil:**
+  - 10% de bombas
+  - Fórmula: `max 1 (size * size / 10)`
+- **Normal:**
+  - 20% de bombas
+  - Fórmula: `max 2 (size * size / 5)`
+- **Difícil:**
+  - 33% de bombas
+  - Fórmula: `max 3 (size * size / 3)`
+
+## 3. Interface Gráfica (Main)
+
+### 3.1. Configuração da Janela
+```haskell
+initWindow :: Int -> Int -> String -> Int -> IO ()
+-- Largura: 1200 pixels (600*2)
+-- Altura: 450 pixels
+-- Título: "Campo Minado"
+-- FPS: 60
+```
+
+### 3.2. Sistema de Renderização
+#### 3.2.1. Assets e Sprites
+```haskell
+-- Definições de sprites
+spriteVisited    = Rectangle (32) (83) 16 16
+spriteNotVisited = Rectangle (50) (83) 16 16
+spriteBomb       = Rectangle (16*2) (21+16*2) 16 16
+-- ... outros sprites
+```
+
+#### 3.2.2. Características dos Sprites
+- Tamanho base: 16x16 pixels
+- Escala: 2x (32x32 pixels finais)
+- Offset da grade: 100 pixels
+- Carregamento via arquivo GIF
+
+### 3.3. Sistema de Input
+#### 3.3.1. Controles do Mouse
+```haskell
+MouseButtonLeft  -- Revela célula
+MouseButtonRight -- Coloca/remove bandeira
+```
+
+#### 3.3.2. Processamento de Coordenadas
+```haskell
+-- Conversão de coordenadas do mouse para grid
+col = (mouseX - gridOffset) div spriteBombSize
+row = (mouseY - gridOffset) div spriteBombSize
+```
+
+## 4. Loop Principal do Jogo
+
+### 4.1. Estrutura do Loop
+```haskell
+whileWindowOpen_ :: (GameState -> IO GameState) -> GameState -> IO ()
+```
+
+### 4.2. Fases do Loop
+1. **Input Processing**
+   ```haskell
+   -- Captura de eventos
+   leftButtonClicked  <- isMouseButtonPressed MouseButtonLeft
+   rightButtonClicked <- isMouseButtonPressed MouseButtonRight
+   (mouseX, mouseY)   <- getMousePosition
+   ```
+
+2. **Game Update**
+   ```haskell
+   newState <- if validClick
+               then gameUpdate state row col rightButtonClicked
+               else return state
+   ```
+
+3. **Rendering**
+   ```haskell
+   -- Renderização do tabuleiro visível
+   clearBackground black
+   forM_ (zip [0..] grid) $ \(rowIndex, rowList) -> 
+       forM_ (zip [0..] rowList) $ \(colIndex, _) ->
+           drawCell rowIndex colIndex
+   ```
+
+## 5. Mecânicas de Jogo
+
+### 5.1. Sistema de Pontuação
+- Células reveladas
+- Bombas restantes
+
+### 5.2. Condições de Vitória/Derrota
+- **Vitória:** `estado 'cnt == state'win`
+- **Derrota:** Revelar uma bomba
+
+### 5.3. Sistema de Bandeiras
+- Marcação de possíveis bombas
+- Limite de bandeiras igual ao número de bombas
+- Não impede revelação da célula
+
+## 6. Debug e Desenvolvimento
+
+### 6.1. Grade de Debug
+- Mostra posição real das bombas
+- Exibe números de todas as células
+- Facilita testes e desenvolvimento
+
+### 6.2. Logging
+```haskell
+putStrLn $ "Remaining bombs: " ++ show (state'remainingBombs newState)
+putStrLn $ "       Finished: " ++ show (state'finished newState)
+putStrLn $ "           Lose: " ++ show (state'lose newState)
+putStrLn $ "            Cnt: " ++ show (state'cnt newState)
+```
 
 
-### Entradas e Saídas por Módulo
 
-1. **Grid (Tabuleiro)**
-   - **Entrada:**
-     - `Int`: Tamanho do tabuleiro.
-     - `Coord`: Coordenadas da célula a ser revelada.
-   - **Saída:**
-     - `Grid`: Matriz com o estado atualizado das células.
-     - `Int`: Número de bombas no tabuleiro.
-   - **Funções Chave:**
-     - `generateGrid :: Int -> IO (Grid, Int)`: Gera um campo minado aleatório.
-     - `countAdjacentBombs :: Grid -> Int -> Grid`: Conta bombas adjacentes a cada célula.
-     - `revealBombs :: Grid -> Grid`: Revela todas as bombas ao perder o jogo.
 
-2. **BFS (Lógica de Expansão)**
-   - **Entrada:**
-     - `Grid`: Estado atual do tabuleiro.
-     - `Int`: Tamanho do tabuleiro.
-     - `Coord`: Coordenada inicial da célula a ser explorada.
-     - `Int`: Contagem atual de células abertas.
-     - `Int`: Contagem necessária para vencer o jogo.
-   - **Saída:**
-     - `(Bool, Int, Grid)`: Booleano indicando se o jogo continua (`True` ou `False`), a nova contagem de células abertas e o tabuleiro atualizado.
-   - **Função Chave:**
-     - `bfs :: Grid -> Int -> Coord -> Int -> Int -> IO (Bool, Int, Grid)`: Inicia a busca em largura a partir da célula fornecida, explorando as células vizinhas e atualizando o estado do jogo. Retorna o estado do jogo (continua ou termina), a nova contagem de células abertas e o tabuleiro atualizado.
-     - **Processo:**
-       - Se a célula atual for uma bomba, o jogo termina com derrota.
-       - Se o número de células abertas atingir o limite necessário para vencer, o jogo termina com vitória.
-       - Se a célula for um número (diferente de zero), a busca não expande para células adjacentes.
-       - Se a célula for vazia, a fila de busca é expandida para incluir as células adjacentes não visitadas.
+### 9.3. Estrutura de Arquivos
+```
+.
+├── app/
+│   ├── Node.hs
+│   ├── Grid.hs
+│   ├── BFS.hs
+│   ├── Game.hs
+│   └── Main.hs
+├── assets/
+│   └── sprite.gif
+└── README.md
+└── Guia.md
+└── LICENSE
 
-3. **Node (Células)**
-   - **Estrutura:**
-     - `data Node = Node { dataNode :: Int, visited :: Bool }`: Cada célula possui um conteúdo (bomba ou número) e um estado (visitado ou não).
-   - **Constantes:**
-     - `bomba :: Int`: Constante que representa uma bomba (`-1`).
-
----
-
-## Parâmetros para Interações
-
-1. **Tamanho do Tabuleiro**
-   - O tamanho do tabuleiro é definido pelo usuário no início do jogo. Exemplo: `size :: Int`
-
-2. **Movimentos do Usuário**
-   - O usuário fornece as coordenadas da célula que deseja revelar. Exemplo: `input :: (Int, Int)`
-
-3. **Interações do Bot**
-   - O Bot gera movimentos aleatórios ou otimizados, dependendo do nível de dificuldade.
-   - Diferentes estratégias de input para simular a jogabilidade do usuário.
-
----
-
-## Exemplo de Uso
-
-1. **Jogo no Modo Usuário**
-   - **Entrada:** `generateGrid 10` (gera um tabuleiro 10x10)
-   - **Saída:** Tabuleiro com células ocultas e uma contagem de bombas.
-
-2. **Jogo no Modo Bot**
-   - **Entrada:** Coordenadas geradas aleatoriamente ou com lógica de IA.
-   - **Saída:** Tabuleiro atualizado conforme os movimentos do Bot.
-
-3. **Input de Usuário/Bot**
-   - Formato esperado: `Linha Coluna` (Exemplo: `3 4` para a célula na linha 3 e coluna 4)
-   - Mensagens de feedback: "Vitória", "Derrota" ou "Continua o jogo"
-
-### Entradas e Saídas por Módulo
-
-1. **Grid (Tabuleiro)**
-   - **Entrada:**
-     - `Int`: Tamanho do tabuleiro.
-     - `Coord`: Coordenadas da célula a ser revelada.
-   - **Saída:**
-     - `Grid`: Matriz com o estado atualizado das células.
-     - `Int`: Número de bombas no tabuleiro.
-   - **Funções Chave:**
-     - `generateGrid :: Int -> IO (Grid, Int)`: Gera um campo minado aleatório.
-     - `countAdjacentBombs :: Grid -> Int -> Grid`: Conta bombas adjacentes a cada célula.
-     - `revealBombs :: Grid -> Grid`: Revela todas as bombas ao perder o jogo.
-  
-   **Exemplos de Uso:**
-   - **Geração de Tabuleiro**
-     ```haskell
-     main :: IO ()
-     main = do
-         (grid, countBombs) <- generateGrid 10
-         putStrLn "Tabuleiro Gerado:"
-         printGrid grid
-         putStrLn $ "Número de Bombas: " ++ show countBombs
-     ```
-   - **Revelação de Bombas ao Perder**
-     ```haskell
-     let finalGrid = revealBombs grid
-     printGrid finalGrid
-     ```
-
-2. **BFS (Lógica de Expansão)**
-   - **Entrada:**
-     - `Grid`: Estado atual do tabuleiro.
-     - `Int`: Tamanho do tabuleiro.
-     - `Coord`: Coordenada inicial da célula a ser explorada.
-     - `Int`: Contagem atual de células abertas.
-     - `Int`: Contagem necessária para vencer o jogo.
-   - **Saída:**
-     - `(Bool, Int, Grid)`: Booleano indicando se o jogo continua (`True` ou `False`), a nova contagem de células abertas e o tabuleiro atualizado.
-   - **Função Chave:**
-     - `bfs :: Grid -> Int -> Coord -> Int -> Int -> IO (Bool, Int, Grid)`: Inicia a busca em largura a partir da célula fornecida, explorando as células vizinhas e atualizando o estado do jogo. Retorna o estado do jogo (continua ou termina), a nova contagem de células abertas e o tabuleiro atualizado.
-
-   - **Descrição Detalhada:**
-     A função `bfs` implementa a lógica de busca em largura para explorar o tabuleiro de campo minado. A partir de uma célula inicial fornecida pelo usuário ou pelo bot, a função explora as células vizinhas (não visitadas e não bombas), revelando-as e verificando se o jogo termina em vitória ou derrota.
-
-     - **Processo:**
-       - Se a célula atual for uma bomba, o jogo termina com derrota.
-       - Se o número de células abertas atingir o limite necessário para vencer, o jogo termina com vitória.
-       - Se a célula for um número (diferente de zero), a busca não expande para células adjacentes.
-       - Se a célula for vazia, a fila de busca é expandida para incluir as células adjacentes não visitadas.
-
-   **Exemplos de Uso:**
-   - **Revelar Célula e Verificar Jogo**
-     ```haskell
-     main :: IO ()
-     main = do
-         (grid, countBombs) <- generateGrid 10
-         let win = 100 - countBombs
-         (result, newCount, updatedGrid) <- bfs grid 10 (5, 5) 0 win
-         if result
-             then putStrLn "O jogo continua!"
-             else putStrLn "Você perdeu!"
-         printGrid updatedGrid
-     ```
-
-     **Descrição do Exemplo:**
-     - Neste exemplo, o tabuleiro é gerado com `generateGrid` e as bombas são aleatoriamente distribuídas.
-     - A célula (5, 5) é a célula inicial explorada pela função `bfs`.
-     - O contador de células abertas começa em `0`, e o número necessário para vitória é calculado como `100 - countBombs` (onde 100 representa o número total de células do tabuleiro, considerando o exemplo de tamanho 10x10).
-     - O resultado da busca é avaliado: se `result` for `True`, significa que o jogo continua; caso contrário, o jogo foi perdido por ter atingido uma bomba.
-     - Após a execução, o tabuleiro atualizado é impresso.
-
-3. **Node (Células)**
-   - **Estrutura:**
-     - `data Node = Node { dataNode :: Int, visited :: Bool }`: Cada célula possui um conteúdo (bomba ou número) e um estado (visitado ou não).
-   - **Constantes:**
-     - `bomba :: Int`: Constante que representa uma bomba (`-1`).
-
-   **Exemplos de Uso:**
-   - **Criação de um Nodo de Bomba**
-     ```haskell
-     let bombaNode = Node bomba False
-     print bombaNode -- Saída: Node { dataNode = -1, visited = False }
-     ```
-
----
+```

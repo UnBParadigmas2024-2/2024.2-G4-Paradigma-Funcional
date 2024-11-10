@@ -27,7 +27,9 @@ generateGrid size numBombs = do
     -- Cria o grid inicial com bombas nas posições selecionadas
     createGridWithBombs :: Int -> [Coord] -> IO Grid
     createGridWithBombs size bombPositions = 
-        return [[if (i, j) `elem` bombPositions then Node bomba False else Node 0 False | j <- [0 .. size - 1]] | i <- [0 .. size - 1]]
+        return [
+            [if (i, j) `elem` bombPositions then Node bomba False False
+             else Node 0 False False | j <- [0 .. size - 1]] | i <- [0 .. size - 1]]
     
     -- Remove duplicatas para garantir que cada posição tenha apenas uma bomba
     removeDuplicates :: [Coord] -> [Coord]
@@ -38,8 +40,8 @@ countAdjacentBombs :: Grid -> Int -> Grid
 countAdjacentBombs grid size = [[updateNode i j | j <- [0 .. size - 1]] | i <- [0 .. size - 1]]
   where
     updateNode i j
-        | dataNode (grid !! i !! j) == bomba = Node bomba False
-        | otherwise = Node (countBombs i j) False
+        | dataNode (grid !! i !! j) == bomba = Node bomba False False
+        | otherwise = Node (countBombs i j) False False
 
     countBombs i j = length [() | (dx, dy) <- dxy, isBomb (i + dx) (j + dy)]
     isBomb x y = x >= 0 && x < size && y >= 0 && y < size && dataNode (grid !! x !! y) == bomba
@@ -61,10 +63,18 @@ updateGrid grid i j =
         newNode = node { visited = True }
     in ys ++ ((xs ++ (newNode : xs')) : zs')
 
+-- Atualiza o estado do nó marcando que há uma bandeira
+showFlag :: Grid -> Int -> Int -> Grid
+showFlag grid i j = 
+    let (ys, zs:zs') = splitAt i grid
+        (xs, node:xs') = splitAt j zs
+        newNode = node { hasFlag = True }
+    in ys ++ ((xs ++ (newNode : xs')) : zs')
+
 -- Função para revelar bombas quando perde
 revealBombs :: Grid -> Grid
 revealBombs grid = [[revealNode node | node <- row] | row <- grid]
   where
-    revealNode node@(Node d v)
-        | d == bomba = Node bomba True -- A bomba é revelada
+    revealNode node@(Node d v f)
+        | d == bomba = Node bomba True False -- A bomba é revelada
         | otherwise = node
