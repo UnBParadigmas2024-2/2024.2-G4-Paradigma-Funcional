@@ -118,19 +118,19 @@ TEMPO: +/- 15min
 
 ## Participações
 Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
-|Nome do Membro | Contribuição | Significância da Contribuição para o Projeto (Excelente/Boa/Regular/Ruim/Nula) | Comprobatórios (ex. links para commits)
-| :--: | -- | :--: | :--: |
-| Fulano  |  Programação dos Fatos da Base de Conhecimento Lógica | Boa | Commit tal (com link) |
-| Abdul hannan |    |    |   |
-| Arthur de Melo Viana |    |    |   |
-| Deivid Carvalho |    |    |   |
-| Felipe de Jesus Rodrigues |    |    |   |
-| Levi de Oliveira Queiroz |    |    |   |	
-| Matheus Fonseca Sousa |    |    |   |	
-| Matheus Costa Gomes |    |    |   |	
-| Pedro fonseca Cruz	|    |    |   |
-| Rafael Brito Bosi Rodrigues |    |    |   |	
-| Yudi Yamane de Azevedo	|    |    |   | 
+|       Nome do Membro        | Contribuição                                                                 | Significância da Contribuição para o Projeto (Excelente/Boa/Regular/Ruim/Nula) | Comprobatórios (ex. links para commits) |
+| :-------------------------: | ---------------------------------------------------------------------------- | :----------------------------------------------------------------------------: | :-------------------------------------: |
+|           Fulano            | Programação dos Fatos da Base de Conhecimento Lógica                         |                                      Boa                                       |          Commit tal (com link)          |
+|        Abdul hannan         |                                                                              |                                                                                |                                         |
+|    Arthur de Melo Viana     |                                                                              |                                                                                |                                         |
+|       Deivid Carvalho       |                                                                              |                                                                                |                                         |
+|  Felipe de Jesus Rodrigues  |                                                                              |                                                                                |                                         |
+|  Levi de Oliveira Queiroz   |                                                                              |                                                                                |                                         |
+|    Matheus Fonseca Sousa    |                                                                              |                                                                                |                                         |
+|     Matheus Costa Gomes     |                                                                              |                                                                                |                                         |
+|     Pedro fonseca Cruz      |                                                                              |                                                                                |                                         |
+| Rafael Brito Bosi Rodrigues |                                                                              |                                                                                |                                         |
+|   Yudi Yamane de Azevedo    | Setup projeto com Raylib, renderização da grade de acordo com o estado do nó |                                      Boa                                       |            1ccffce, b292060             |
 
 
 
