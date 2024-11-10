@@ -99,8 +99,8 @@ buttonPath = "assets/button.png"
 main :: IO ()
 main = do
   withWindow
-    1280
-    900
+    1600
+    800
     "Campo Minado"
     60
     ( \window -> do
@@ -341,10 +341,10 @@ main = do
                       drawText "Reiniciar" (buttonX + 10) (buttonY + 8) 20 black
                     
                     -- Campo invisível, debug apenas
-                  {- forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
+                    forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
                         forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
                           ( do
-                              let x = fromIntegral (500 + (colIndex * spriteBombSize)) :: Float
+                              let x = fromIntegral (800 + (colIndex * spriteBombSize)) :: Float
                                   y = fromIntegral (100 + (rowIndex * spriteBombSize)) :: Float
                                   rect = getRectForHiddenCellSprite (state'grid newState) rowIndex colIndex
                               
@@ -358,34 +358,10 @@ main = do
                                 (Rectangle x y ((rectangle'width (rect))*scale) 
                                 ((rectangle'height (rect))*scale)) 
                                 (Vector2 0 0) 0 white
-                          )-}
+                          )
                   )
                 return (newState, GameScreen)
           )
           (initialState, initialScreen) -- Estado inicial e tela inicial
     )
-
-{-
-
-concatMap (map (\x -> x) [[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-
-loop infinito {
-    Matheus
-    1. Pega input do usuário
-        - click do mouse (esq, direito, do meio)
-        - movimento do mouse (posição x e y)
-        - coord = converter o X, Y pra cood da grid (lista de listas)
-
-    2. Atualização do sistema reagindo ao input do usuário
-        - status do jogo = grid_update coord
-    
-    3. Render/"Pintar na tela"
-        Levi
-        - Pintar cronomtro
-        Yudi
-        - Pintar cada Nó da lista
-        - Pintar o restante da interface (bordas)
-}
-
--}
 
