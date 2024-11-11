@@ -72,9 +72,10 @@ gameUpdate state row col isSettingFlag = do
             let hasWon = (state'win state) == newCnt
             let hasLost = not hasWon && not res
             let finished = hasLost || hasWon
+            let cell = (state'grid state !! row) !! col
 
             let updatedRemainingFlags = 
-                    if isSettingFlag then 
+                    if isSettingFlag && not (visited cell) then 
                         if (cellHasFlag (state'grid state) row col) then
                             -- Remover bandeira (caso já tenha uma bandeira)
                             min (state'remainingFlags state + 1) (state'remainingBombs state)
@@ -102,9 +103,10 @@ gameUpdate state row col isSettingFlag = do
             let hasWon = (state'win state) == newCnt
             let hasLost = not hasWon && not res
             let finished = hasLost || hasWon
+            let cell = (state'grid state !! row) !! col
 
             let updatedRemainingFlags = 
-                    if isSettingFlag then 
+                    if isSettingFlag && not (visited cell) then 
                         if (cellHasFlag (state'grid state) row col) then
                             -- Remover bandeira (caso já tenha uma bandeira)
                             min (state'remainingFlags state + 1) (state'remainingBombs state)
@@ -127,6 +129,7 @@ gameUpdate state row col isSettingFlag = do
                 (state'startTime state)
                 (state'currentTime state)
                 (state'structureType state)
+
 
 -- Função para verificar se uma célula já possui uma bandeira
 cellHasFlag :: [[Node]] -> Int -> Int -> Bool 
