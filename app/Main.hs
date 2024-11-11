@@ -26,8 +26,8 @@ import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), p
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
-import Game 
-  ( gameInit 
+import Game
+  ( gameInit
   , gameUpdate
   , state'grid
   , state'cnt
@@ -36,11 +36,13 @@ import Game
   , state'lose
   , state'size
   , state'remainingBombs
+  , state'remainingFlags
   , state'startTime
   , state'currentTime
   , state'structureType
   , printGrid
   , gameRestart
+  , cellHasFlag
   )
 import Node (Node(..), bomba)
 import Grid (Grid)
@@ -64,7 +66,7 @@ spriteFlag       :: Rectangle; spriteFlag       = (Rectangle (16*1) (21+16*2) 16
 
 getRectForVisibleCellSprite :: Grid -> Int -> Int -> Rectangle
 getRectForVisibleCellSprite grid row col = rect
-  where 
+  where
     isVisited   = visited (grid !! row !! col)
     bombsAround = dataNode (grid !! row !! col)
     flagSet = hasFlag (grid !! row !! col)
@@ -101,7 +103,7 @@ getRectForHiddenCellSprite grid row col = rect
       | otherwise        = spriteError
 
 formatTime :: Int -> String
-formatTime seconds = 
+formatTime seconds =
     let minutes = seconds `div` 60
         remainingSeconds = seconds `mod` 60
     in printf "%02d:%02d" minutes remainingSeconds
@@ -144,20 +146,20 @@ main = do
                       buttonStructureY = 300
                       structureFontSize = 20
                   -- Configuração dos botões e seus respectivos parâmetros
-                  let buttonStructureConfigs = 
+                  let buttonStructureConfigs =
                         [ ("Fila", 250, "bfs")       -- Texto, Posição X, Estrutura desejada
-                        , ("Pilha", 450, "dfs")   
+                        , ("Pilha", 450, "dfs")
                         ]
                   -- Função auxiliar para desenhar o botão e detectar cliques
                   let drawAndCheckbuttonStructureClick (text, buttonStructureX, structure) = do
                         -- Posições para centralizar o texto no botão
                         let textSizeX = buttonStructureX + (buttonStructureWidth `div` 2) - (length text * structureFontSize `div` 4)
                             textSizeY = buttonStructureY + (buttonStructureHeight `div` 2) - (structureFontSize `div` 2)
-                        
+
                         -- Desenha o botão na posição especificada
-                        drawTexturePro buttonTexture 
-                          (Rectangle 0 0 793 205) 
-                          (Rectangle (fromIntegral buttonStructureX) (fromIntegral buttonStructureY) 
+                        drawTexturePro buttonTexture
+                          (Rectangle 0 0 793 205)
+                          (Rectangle (fromIntegral buttonStructureX) (fromIntegral buttonStructureY)
                                     (fromIntegral buttonStructureWidth) (fromIntegral buttonStructureHeight))
                           (Vector2 0 0) 0 white
 
@@ -173,7 +175,7 @@ main = do
                               mouseStructureX <= buttonStructureX + buttonStructureWidth &&
                               mouseStructureY >= buttonStructureY &&
                               mouseStructureY <= buttonStructureY + buttonStructureHeight
-                        
+
                         -- Se o botão foi clicado, inicia o jogo com o estado inicial
                         if isbuttonStructureClicked
                           then do
@@ -182,10 +184,10 @@ main = do
                           else return Nothing
 
                           -- Desenha cada botão e verifica cliques
-                  result <- foldM (\acc btnConfig -> 
+                  result <- foldM (\acc btnConfig ->
                             case acc of
                               Just val -> return (Just val) -- Já encontrou o botão clicado
-                              Nothing -> drawAndCheckbuttonStructureClick btnConfig) 
+                              Nothing -> drawAndCheckbuttonStructureClick btnConfig)
                             Nothing buttonStructureConfigs
 
                   -- Decide o próximo estado com base na detecção de clique
@@ -203,21 +205,21 @@ main = do
                       buttonSizeY = 300
                       sizeFontSize = 20
                   -- Configuração dos botões e seus respectivos parâmetros
-                  let buttonSizeConfigs = 
+                  let buttonSizeConfigs =
                         [ ("10x10", 100, 10)       -- Texto, Posição X, tamanho GRID"
-                        , ("15x15", 300, 15)   
-                        , ("20x20", 500, 20)       
+                        , ("15x15", 300, 15)
+                        , ("20x20", 500, 20)
                         ]
                   -- Função auxiliar para desenhar o botão e detectar cliques
                   let drawAndCheckButtonSizeClick (text, buttonSizeX, gridSize) = do
                         -- Posições para centralizar o texto no botão
                         let textSizeX = buttonSizeX + (buttonSizeWidth `div` 2) - (length text * sizeFontSize `div` 4)
                             textSizeY = buttonSizeY + (buttonSizeHeight `div` 2) - (sizeFontSize `div` 2)
-                        
+
                         -- Desenha o botão na posição especificada
-                        drawTexturePro buttonTexture 
-                          (Rectangle 0 0 793 205) 
-                          (Rectangle (fromIntegral buttonSizeX) (fromIntegral buttonSizeY) 
+                        drawTexturePro buttonTexture
+                          (Rectangle 0 0 793 205)
+                          (Rectangle (fromIntegral buttonSizeX) (fromIntegral buttonSizeY)
                                     (fromIntegral buttonSizeWidth) (fromIntegral buttonSizeHeight))
                           (Vector2 0 0) 0 white
 
@@ -233,7 +235,7 @@ main = do
                               mouseSizeX <= buttonSizeX + buttonSizeWidth &&
                               mouseSizeY >= buttonSizeY &&
                               mouseSizeY <= buttonSizeY + buttonSizeHeight
-                        
+
                         -- Se o botão foi clicado, inicia o jogo com o estado inicial
                         if isButtonSizeClicked
                           then do
@@ -242,10 +244,10 @@ main = do
                           else return Nothing
 
                   -- Desenha cada botão e verifica cliques
-                  result <- foldM (\acc btnConfig -> 
+                  result <- foldM (\acc btnConfig ->
                             case acc of
                               Just val -> return (Just val) -- Já encontrou o botão clicado
-                              Nothing -> drawAndCheckButtonSizeClick btnConfig) 
+                              Nothing -> drawAndCheckButtonSizeClick btnConfig)
                             Nothing buttonSizeConfigs
 
                   -- Decide o próximo estado com base na detecção de clique
@@ -264,10 +266,10 @@ main = do
                       buttonY = 300
                       fontSize = 20
                   -- Configuração dos botões e seus respectivos parâmetros
-                  let buttonConfigs = 
+                  let buttonConfigs =
                         [ ("Easy", 100, "easy")       -- Texto, Posição X, Dificuldade"
-                        , ("Normal", 300, "normal")   
-                        , ("Hard", 500, "hard")       
+                        , ("Normal", 300, "normal")
+                        , ("Hard", 500, "hard")
                         ]
                   -- Função auxiliar para desenhar o botão e detectar cliques
                   let drawAndCheckButtonClick (text, buttonX, difficulty) = do
@@ -276,9 +278,9 @@ main = do
                             textY = buttonY + (buttonHeight `div` 2) - (fontSize `div` 2)
 
                         -- Desenha o botão na posição especificada
-                        drawTexturePro buttonTexture 
-                          (Rectangle 0 0 793 205) 
-                          (Rectangle (fromIntegral buttonX) (fromIntegral buttonY) 
+                        drawTexturePro buttonTexture
+                          (Rectangle 0 0 793 205)
+                          (Rectangle (fromIntegral buttonX) (fromIntegral buttonY)
                                     (fromIntegral buttonWidth) (fromIntegral buttonHeight))
                           (Vector2 0 0) 0 white
 
@@ -305,10 +307,10 @@ main = do
                           else return Nothing
 
                   -- Desenha cada botão e verifica cliques
-                  result <- foldM (\acc btnConfig -> 
+                  result <- foldM (\acc btnConfig ->
                             case acc of
                               Just val -> return (Just val) -- Já encontrou o botão clicado
-                              Nothing -> drawAndCheckButtonClick btnConfig) 
+                              Nothing -> drawAndCheckButtonClick btnConfig)
                             Nothing buttonConfigs
 
                   -- Decide o próximo estado com base na detecção de clique
@@ -327,8 +329,9 @@ main = do
                     row = (mouseY - gridOffset) `div` spriteBombSize
                     validClick = mouseClicked && row >= 0 && col >= 0 &&
                                 row < length (state'grid state) &&
-                                col < length (head (state'grid state))
-                                
+                                col < length (head (state'grid state)) &&
+                                (state'remainingFlags state > 0 || not rightButtonClicked || cellHasFlag (state'grid state) row col)
+
                  -- Atualizar o tempo se o jogo não acabou
 
                 currentTime <- if state'finished state
@@ -344,11 +347,11 @@ main = do
                     buttonY = 20
                     buttonWidth = 100
                     buttonHeight = 30
-                    restartButtonArea = (mouseX >= buttonX && mouseX <= buttonX + buttonWidth) && 
+                    restartButtonArea = (mouseX >= buttonX && mouseX <= buttonX + buttonWidth) &&
                                   (mouseY >= buttonY && mouseY <= buttonY + buttonHeight)
-                    clickedRestartButton = mouseClicked && restartButtonArea && 
+                    clickedRestartButton = mouseClicked && restartButtonArea &&
                                      state'finished state
-                
+
                 let menuButtonX = 370
                     menuButtonY = 20
                     menuButtonWidth = 150
@@ -385,27 +388,46 @@ main = do
                     -- TODO: revelar grid final
                     -- TODO: impedir que o jogo continue sendo jogado
                     -- TODO: reiniciar jogo?
-                  else 
+                  else
                     putStrLn "                Game running"
 
-                drawing 
+                drawing
                   ( do
                     clearBackground black
                     -- Renderizar o contador de tempo
                     let timeStr = formatTime (state'currentTime newState)
-                    let timerX = 20  
-                    let timerY = 20  
-                    let timerWidth = 120  
-                    let timerHeight = 40  
-                    let fontSize = 30  
-                
+                    let timerX = 20
+                    let timerY = 20
+                    let timerWidth = 120
+                    let timerHeight = 40
+                    let fontSize = 30
+
                     -- Fundo do timer
                     drawRectangle timerX timerY timerWidth timerHeight white
                     -- Texto do timer
                     drawText timeStr (timerX + 15) (timerY + 10) fontSize black
-                    
+
+                    -- Quantidade de bombas
+                    let bombsQty = show (state'remainingFlags state)  -- Convertendo para String com 'show'
+                    let bombsQtyX = 700
+                    let bombsQtyY = 20
+                    let bombsQtyWidth = 120
+                    let bombsQtyHeight = 40
+                    let bombsQtyFontSize = 30
+
+                    -- Fundo do contador de bombas
+                    drawRectangle bombsQtyX bombsQtyY bombsQtyWidth bombsQtyHeight white
+
+                    -- Desenhar a sprite da bandeira no HUD
+                    drawTexturePro texture spriteFlag
+                        (Rectangle (695) (28) (rectangle'width spriteFlag * 2) (rectangle'height spriteFlag * 2))
+                        (Vector2 0 0) 0 white
+
+                    -- Texto do bombsQty
+                    drawText bombsQty (bombsQtyX + 30) (bombsQtyY + 10) bombsQtyFontSize black
+
                     -- Campo visível
-                    forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
+                    forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) ->
                       forM_ (zip [0..] rowList) $ \(colIndex, cell) -> do
                         let x = fromIntegral (gridOffset + (colIndex * spriteBombSize)) :: Float
                             y = fromIntegral (gridOffset + (rowIndex * spriteBombSize)) :: Float
@@ -417,25 +439,25 @@ main = do
                         if isVisited || (isBomb && state'finished newState) then
                             drawTexturePro texture spriteVisited
                                 (Rectangle x y ((rectangle'width spriteVisited) * scale)
-                                ((rectangle'height spriteVisited) * scale)) 
+                                ((rectangle'height spriteVisited) * scale))
                                 (Vector2 0 0) 0 white
                         else
                             drawTexturePro texture spriteNotVisited
                                 (Rectangle x y ((rectangle'width spriteNotVisited) * scale)
-                                ((rectangle'height spriteNotVisited) * scale)) 
+                                ((rectangle'height spriteNotVisited) * scale))
                                 (Vector2 0 0) 0 white
 
                         if state'finished newState then
                             drawTexturePro texture rectHd
                                 (Rectangle x y ((rectangle'width rectHd) * scale)
-                                ((rectangle'height rectHd) * scale)) 
+                                ((rectangle'height rectHd) * scale))
                                 (Vector2 0 0) 0 white
                         else
-                            drawTexturePro texture rect 
+                            drawTexturePro texture rect
                                 (Rectangle x y ((rectangle'width rect) * scale)
-                                ((rectangle'height rect) * scale)) 
+                                ((rectangle'height rect) * scale))
                                 (Vector2 0 0) 0 white
-                    
+
                     -- Qd o jogo termina
                     when (state'finished newState) $ do
                       drawRectangle buttonX buttonY buttonWidth buttonHeight white
@@ -444,7 +466,7 @@ main = do
                       drawRectangle menuButtonX menuButtonY menuButtonWidth menuButtonHeight white
                       drawText "Menu Inicial" (menuButtonX + 15) (menuButtonY + 8) 20 black
 
-                      let 
+                      let
                         screenWidth = 350
                         screenHeight = 180
                         centerX = (fromIntegral screenWidth :: Float) / 2.0 + 50
