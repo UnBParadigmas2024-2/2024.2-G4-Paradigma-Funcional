@@ -45,6 +45,8 @@ Este projeto é aberto a sugestões e contribuições. Sinta-se à vontade para 
 ## Screenshots
 Adicione 2 ou mais screenshots do projeto em termos de interface e/ou funcionamento.
 
+![CampoMinadoGIF](assets/campoMinadoGIF.gif)
+
 ## Execução
 **Linguagens**: [Haskell](https://www.haskell.org/downloads/)
 
