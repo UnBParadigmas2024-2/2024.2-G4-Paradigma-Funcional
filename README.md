@@ -132,14 +132,8 @@ Nessa seção, deve-se revelar de forma clara sobre o funcionamento do software.
 
 
 ## Vídeo
-Adicione 1 ou mais vídeos com a execução do projeto.
-Procure: 
-(i) Introduzir o projeto;
-(ii) Mostrar passo a passo o código, explicando-o, e deixando claro o que é de terceiros, e o que é contribuição real da equipe;
-(iii) Apresentar particularidades do Paradigma, da Linguagem, e das Tecnologias, e
-(iV) Apresentar lições aprendidas, contribuições, pendências, e ideias para trabalhos futuros.
-OBS: TODOS DEVEM PARTICIPAR, CONFERINDO PONTOS DE VISTA.
-TEMPO: +/- 15min
+Vídeo com a explicação e execução do projeto:
+[Apresentação](https://www.youtube.com/watch?v=9lC8M_Gmg50)
 
 
 ## Participações
@@ -149,7 +143,7 @@ Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 | :-------------------------: | ---------------------------------------------------------------------------- | :----------------------------------------------------------------------------: | :-------------------------------------: |
 |           Fulano            | Programação dos Fatos da Base de Conhecimento Lógica                         |                                      Boa                                       |          Commit tal (com link)          |
 | Abdul hannan |    Criação do documento Guia.md para detalhar e explicar melhor todos os módulos e funções do projeto e criacao do bot de toma decisões basedo nas probabilidades, escolhendo células com menor risco (<0.3) e usa BFS para explorar células| Excelente   |   |
-|    Arthur de Melo Viana     | Implementação da BFS Recursiva e da estrutura base do grafo e dos nós e de funções básicas para a grid como o contador de bombas adjacentes à celula e updates nos nós. Implementação das telas de fim de jogo e da visualização das bombas ao ganhar/perder.     |  Excelente | [Versão Inicial das Estruturas e da BFS](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/93f5b069567541163f32634e51ec0ee852c60bf8), [Implementação e correção da BFS recursiva](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/a2694f0995dc957ddb1e48410b8205cdc3a4f544) e [Adiciona telas de fim de jogo e revelação das bombas na interface](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/pull/17/commits/a3223e69b95db2e32404163af45dc34a2b278228) |
+|    Arthur de Melo Viana     | Implementação da BFS Recursiva, da estrutura base do grafo e dos nós e de funções básicas para a grid como o contador de bombas adjacentes à celula e updates nos nós. Implementação das telas de fim de jogo e da visualização das bombas ao ganhar/perder.     |  Excelente | [Versão Inicial das Estruturas e da BFS](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/93f5b069567541163f32634e51ec0ee852c60bf8), [Implementação e correção da BFS recursiva](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/a2694f0995dc957ddb1e48410b8205cdc3a4f544) e [Adiciona telas de fim de jogo e revelação das bombas na interface](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/pull/17/commits/a3223e69b95db2e32404163af45dc34a2b278228) |
 |       Deivid Carvalho       | Implementação da funcionalidade de adicionar e retirar flags  |  Excelente |   |
 | Felipe de Jesus Rodrigues |  Geração de bombas aleátoria para cada dificuldade e tamanho de tabuleiro. Tela de seleção de dificuldade.  |  Excelente  | [Geração de bombas aleátoria para cada dificuldade e tamanho de tabuleiro](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/8d3282f7ae9a6ec657430fa2202ea882dfea59fd); [Tela de seleção de dificuldade](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/96f9fb93655bc39be974079a1527b9b75176fa8c) |
 |  Levi de Oliveira Queiroz   |  Implementação do botão de Menu Inicial no fim do jogo e a parada do cronômetro                                                                            |   Regular                                                                             |   [Time stop when player lose or win](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/232116c396fc99c7f8874eb1f5bffabb3e109b37) <br> [Menu Inicial returns to SetStructureMenu](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/683df7d89eab6ec35f74da5cf52a978a407c044c)                                     |
