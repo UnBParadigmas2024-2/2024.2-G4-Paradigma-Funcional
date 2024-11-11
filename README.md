@@ -20,9 +20,26 @@
 
 
 ## Sobre 
-Descreva o seu projeto em linhas gerais. 
-Use referências, links, que permitam conhecer um pouco mais sobre o projeto.
-Capriche nessa seção, pois ela é a primeira a ser lida pelos interessados no projeto.
+
+Este projeto é uma implementação do popular jogo de campo minado, feita com o foco em explorar as potencialidades do paradigma funcional e da linguagem Haskell. Ao abordar a estrutura do jogo, foi usada uma abordagem modular, com funções que aproveitam o sistema de tipos forte e a pureza de Haskell, características que tornam a linguagem ideal para implementações claras e rigorosas.
+
+Neste projeto, você encontrará uma aplicação robusta e funcional, com recursos que vão desde a geração dinâmica de grids com bombas e contagem de células adjacentes, até a manipulação de dados e a navegação interativa do jogador, tudo executado em uma interface gráfica construída com a biblioteca h-raylib (baseada na raylib).
+
+Para quem deseja explorar o funcionamento do projeto, ele foi estruturado de modo a oferecer:
+
+Um modelo extensível de nós e grids: onde cada célula do grid possui atributos específicos que controlam seu estado (visibilidade, presença de bandeiras, bombas, etc.).
+Algoritmos de busca (BFS e DFS): utilizados para explorar o campo e abrir regiões de células, refletindo o comportamento do jogo real.
+Registro de tempo de partida e contagem de movimentos: para aqueles que gostam de melhorar o desempenho em cada tentativa.
+O código, implementado inteiramente em Haskell, não apenas foca em eficiência e segurança, como também serve como uma ótima fonte de aprendizado para quem quer compreender conceitos do paradigma funcional aplicados em um projeto completo.
+
+Interessados em Haskell ou na lógica de campo minado podem explorar o código e a estrutura modular deste projeto. Ele está organizado para ser amigável a contribuições e inclui documentação interna para aqueles que desejarem mergulhar mais fundo em cada função.
+
+Para saber mais sobre Haskell e a biblioteca raylib usada na interface gráfica, confira:
+
+- [Documentação Haskell](https://www.haskell.org/documentation/)
+- [raylib](https://www.raylib.com/) e [h-raylib](https://github.com/Anut-py/h-raylib/blob/master/DOCUMENTATION.md) no GitHub
+
+Este projeto é aberto a sugestões e contribuições. Sinta-se à vontade para contribuir com melhorias, adicionar novos recursos ou simplesmente compartilhar feedback.
 
 
 ## Screenshots
