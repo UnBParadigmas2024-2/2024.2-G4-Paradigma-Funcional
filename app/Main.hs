@@ -353,12 +353,15 @@ main = do
                 newState <- if clickedRestartButton
                             then gameRestart stateWithTime
                             else if clickedMenuButton
-                              then gameRestart stateWithTime
+                              then return stateWithTime
                             else if state'finished stateWithTime
                                 then return stateWithTime
                                 else if validClick
                                     then gameUpdate stateWithTime row col rightButtonClicked
                                     else return stateWithTime
+
+                let newScreen = if clickedMenuButton then SetStructureMenu else GameScreen
+
                 when validClick $ do
                   -- printGrid (state'grid newState)
                   putStrLn $ "-------------------------- "
@@ -446,7 +449,7 @@ main = do
                                 (Vector2 0 0) 0 white
                           )-}
                   )
-                return (newState, GameScreen)
+                return (newState, newScreen)
           )
           (initialState, initialScreen) -- Estado inicial e tela inicial
     )
