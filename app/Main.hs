@@ -341,10 +341,19 @@ main = do
                                   (mouseY >= buttonY && mouseY <= buttonY + buttonHeight)
                     clickedRestartButton = mouseClicked && restartButtonArea && 
                                      state'finished state
+                
+                let menuButtonX = 370
+                    menuButtonY = 20
+                    menuButtonWidth = 150
+                    menuButtonHeight = 30
+                    menuButtonArea = (mouseX >= menuButtonX && mouseX <= menuButtonX + menuButtonWidth) && (mouseY >= menuButtonY && mouseY <= menuButtonY + menuButtonHeight)
+                    clickedMenuButton = mouseClicked && menuButtonArea && state'finished state
 
                 -- 2. Atualizar jogo
                 newState <- if clickedRestartButton
                             then gameRestart stateWithTime
+                            else if clickedMenuButton
+                              then gameRestart stateWithTime
                             else if state'finished stateWithTime
                                 then return stateWithTime
                                 else if validClick
@@ -414,6 +423,8 @@ main = do
                     when (state'finished newState) $ do
                       drawRectangle buttonX buttonY buttonWidth buttonHeight white
                       drawText "Reiniciar" (buttonX + 10) (buttonY + 8) 20 black
+                      drawRectangle menuButtonX menuButtonY menuButtonWidth menuButtonHeight white
+                      drawText "Menu Inicial" (menuButtonX + 15) (menuButtonY + 8) 20 black
                     
                     -- Campo invisível, debug apenas
                     {-forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
