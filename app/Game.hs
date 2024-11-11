@@ -16,6 +16,7 @@ module Game
     , state'structureType
     , playGameBFS
     , printGrid
+    , cellHasFlag
     ) where
 
 import Grid (generateGrid, revealBombs, Grid)
@@ -30,6 +31,7 @@ data GameState = GameState {
     state'cnt      :: Int,
     state'win      :: Int,
     state'remainingBombs :: Int, 
+    state'remainingFlags :: Int, 
     state'finished :: Bool,
     state'lose     :: Bool,
     state'difficulty :: String,
@@ -56,19 +58,32 @@ gameInit size difficulty structure = do
     let bombChance = getBombChance difficulty size
     (grid, cntBombs) <- generateGrid size bombChance
     let win = size * size - cntBombs
+    let remainingFlags = cntBombs
     startTime <- getCurrentTime
     let structureType = structure
     
-    return (GameState grid size 0 win cntBombs False False difficulty startTime 0 structureType)
+    return (GameState grid size 0 win cntBombs remainingFlags False False difficulty startTime 0 structureType)
 
 gameUpdate :: GameState -> Int -> Int -> Bool -> IO (GameState)
 gameUpdate state row col isSettingFlag = do
     if (state'structureType state == "bfs")
         then do
-            (res, newCnt, newGrid) <- bfs (state'grid  state) (state'size  state) (row, col) (state'cnt state) (state'win state) isSettingFlag
+            (res, newCnt, newGrid) <- bfs (state'grid state) (state'size state) (row, col) (state'cnt state) (state'win state) isSettingFlag
             let hasWon = (state'win state) == newCnt
             let hasLost = not hasWon && not res
             let finished = hasLost || hasWon
+            let cell = (state'grid state !! row) !! col
+
+            let updatedRemainingFlags = 
+                    if isSettingFlag && not (visited cell) then 
+                        if (cellHasFlag (state'grid state) row col) then
+                            -- Remover bandeira (caso já tenha uma bandeira)
+                            min (state'remainingFlags state + 1) (state'remainingBombs state)
+                        else
+                            -- Adicionar bandeira (caso não tenha uma bandeira)
+                            max (state'remainingFlags state - 1) 0
+                    else
+                        state'remainingFlags state
 
             return $ GameState 
                 newGrid 
@@ -76,6 +91,7 @@ gameUpdate state row col isSettingFlag = do
                 newCnt 
                 (state'win state)
                 (state'remainingBombs state) 
+                updatedRemainingFlags
                 finished 
                 hasLost
                 (state'difficulty state)
@@ -87,6 +103,18 @@ gameUpdate state row col isSettingFlag = do
             let hasWon = (state'win state) == newCnt
             let hasLost = not hasWon && not res
             let finished = hasLost || hasWon
+            let cell = (state'grid state !! row) !! col
+
+            let updatedRemainingFlags = 
+                    if isSettingFlag && not (visited cell) then 
+                        if (cellHasFlag (state'grid state) row col) then
+                            -- Remover bandeira (caso já tenha uma bandeira)
+                            min (state'remainingFlags state + 1) (state'remainingBombs state)
+                        else
+                            -- Adicionar bandeira (caso não tenha uma bandeira)
+                            max (state'remainingFlags state - 1) 0
+                    else
+                        state'remainingFlags state
 
             return $ GameState 
                 newGrid 
@@ -94,6 +122,7 @@ gameUpdate state row col isSettingFlag = do
                 newCnt 
                 (state'win state)
                 (state'remainingBombs state) 
+                updatedRemainingFlags
                 finished 
                 hasLost
                 (state'difficulty state)
@@ -101,6 +130,11 @@ gameUpdate state row col isSettingFlag = do
                 (state'currentTime state)
                 (state'structureType state)
 
+
+-- Função para verificar se uma célula já possui uma bandeira
+cellHasFlag :: [[Node]] -> Int -> Int -> Bool 
+cellHasFlag grid row col = 
+    hasFlag (grid !! row !! col)
 
 playGameBFS :: Int -> String -> IO ()
 playGameBFS size difficulty = do
