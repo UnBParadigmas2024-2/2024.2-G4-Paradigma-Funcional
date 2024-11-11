@@ -22,7 +22,7 @@ import Raylib.Core.Textures
     loadImage,
     loadTextureFromImage
   )
-import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), pattern Vector2, MouseButton (..), KeyboardKey (..))
+import Raylib.Types (Rectangle (Rectangle, rectangle'height, rectangle'width), pattern Vector2, MouseButton (..), KeyboardKey (..), Color(..))
 import Raylib.Util (drawing, whileWindowOpen_, withWindow, managed)
 import Raylib.Util.Colors (black, white)
 
@@ -329,9 +329,13 @@ main = do
                                 row < length (state'grid state) &&
                                 col < length (head (state'grid state))
                                 
-                 -- Atualizar o tempo
-                currentTimeUTC <- getCurrentTime
-                let currentTime = floor $ diffUTCTime currentTimeUTC (state'startTime state)
+                 -- Atualizar o tempo se o jogo não acabou
+
+                currentTime <- if state'finished state
+                                    then return (state'currentTime state)
+                                    else do
+                                        currentTimeUTC <- getCurrentTime
+                                        return $ floor $ diffUTCTime currentTimeUTC (state'startTime state)
 
                 let stateWithTime = state { state'currentTime = currentTime }
 
@@ -344,15 +348,27 @@ main = do
                                   (mouseY >= buttonY && mouseY <= buttonY + buttonHeight)
                     clickedRestartButton = mouseClicked && restartButtonArea && 
                                      state'finished state
+                
+                let menuButtonX = 370
+                    menuButtonY = 20
+                    menuButtonWidth = 150
+                    menuButtonHeight = 30
+                    menuButtonArea = (mouseX >= menuButtonX && mouseX <= menuButtonX + menuButtonWidth) && (mouseY >= menuButtonY && mouseY <= menuButtonY + menuButtonHeight)
+                    clickedMenuButton = mouseClicked && menuButtonArea && state'finished state
 
                 -- 2. Atualizar jogo
                 newState <- if clickedRestartButton
                             then gameRestart stateWithTime
+                            else if clickedMenuButton
+                              then return stateWithTime
                             else if state'finished stateWithTime
                                 then return stateWithTime
                                 else if validClick
                                     then gameUpdate stateWithTime row col rightButtonClicked
                                     else return stateWithTime
+
+                let newScreen = if clickedMenuButton then SetStructureMenu else GameScreen
+
                 when validClick $ do
                   -- printGrid (state'grid newState)
                   putStrLn $ "-------------------------- "
@@ -390,34 +406,63 @@ main = do
                     
                     -- Campo visível
                     forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
-                        forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
-                          ( do
-                              let x = fromIntegral (gridOffset + (colIndex * spriteBombSize)) :: Float
-                                  y = fromIntegral (gridOffset + (rowIndex * spriteBombSize)) :: Float
-                                  rect = getRectForVisibleCellSprite (state'grid newState) rowIndex colIndex
-                              
-                              if visited ((state'grid newState) !! rowIndex !! colIndex) then
-                                drawTexturePro texture spriteVisited
-                                  (Rectangle x y ((rectangle'width (spriteVisited))*scale) 
-                                  ((rectangle'height (spriteVisited))*scale)) 
-                                  (Vector2 0 0) 0 white
-                              else
-                                drawTexturePro texture spriteNotVisited
-                                  (Rectangle x y ((rectangle'width (spriteNotVisited))*scale) 
-                                  ((rectangle'height (spriteNotVisited))*scale)) 
-                                  (Vector2 0 0) 0 white
+                      forM_ (zip [0..] rowList) $ \(colIndex, cell) -> do
+                        let x = fromIntegral (gridOffset + (colIndex * spriteBombSize)) :: Float
+                            y = fromIntegral (gridOffset + (rowIndex * spriteBombSize)) :: Float
+                            rect = getRectForVisibleCellSprite (state'grid newState) rowIndex colIndex
+                            rectHd = getRectForHiddenCellSprite (state'grid newState) rowIndex colIndex
+                            isVisited = visited cell
+                            isBomb = dataNode cell == bomba
 
-                              drawTexturePro texture rect 
-                                (Rectangle x y ((rectangle'width (rect))*scale) 
-                                ((rectangle'height (rect))*scale)) 
+                        if isVisited || (isBomb && state'finished newState) then
+                            drawTexturePro texture spriteVisited
+                                (Rectangle x y ((rectangle'width spriteVisited) * scale)
+                                ((rectangle'height spriteVisited) * scale)) 
                                 (Vector2 0 0) 0 white
-                          )
+                        else
+                            drawTexturePro texture spriteNotVisited
+                                (Rectangle x y ((rectangle'width spriteNotVisited) * scale)
+                                ((rectangle'height spriteNotVisited) * scale)) 
+                                (Vector2 0 0) 0 white
+
+                        if state'finished newState then
+                            drawTexturePro texture rectHd
+                                (Rectangle x y ((rectangle'width rectHd) * scale)
+                                ((rectangle'height rectHd) * scale)) 
+                                (Vector2 0 0) 0 white
+                        else
+                            drawTexturePro texture rect 
+                                (Rectangle x y ((rectangle'width rect) * scale)
+                                ((rectangle'height rect) * scale)) 
+                                (Vector2 0 0) 0 white
                     
-                    -- Renderizar botão de reiniciar quando o jogo terminar
+                    -- Qd o jogo termina
                     when (state'finished newState) $ do
                       drawRectangle buttonX buttonY buttonWidth buttonHeight white
                       drawText "Reiniciar" (buttonX + 10) (buttonY + 8) 20 black
-                    
+
+                      drawRectangle menuButtonX menuButtonY menuButtonWidth menuButtonHeight white
+                      drawText "Menu Inicial" (menuButtonX + 15) (menuButtonY + 8) 20 black
+
+                      let 
+                        screenWidth = 350
+                        screenHeight = 180
+                        centerX = (fromIntegral screenWidth :: Float) / 2.0 + 50
+                        centerY = (fromIntegral screenHeight :: Float) / 2.0 + 100
+                        buttonX = round (centerX + 50)
+                        buttonY = round (centerY + 80)
+                        buttonWidth = 100
+                        buttonHeight = 40
+                        centerXInt = round centerX
+                        centerYInt = round centerY
+                      if (state'cnt newState) == (state'win newState)
+                        then do
+                          drawRectangle centerXInt centerYInt screenWidth screenHeight (Color 200 255 200 180)
+                          drawText "Você ganhou!!" (centerXInt + 20) (centerYInt + 20) 30 (Color 0 128 0 255)
+                        else when (state'lose newState) $ do
+                          drawRectangle centerXInt centerYInt screenWidth screenHeight (Color 255 200 200 180)
+                          drawText "Você perdeu!!" (centerXInt + 20) (centerYInt + 20) 30 (Color 139 0 0 255)
+
                     -- Campo invisível, debug apenas
                     {-forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
                         forM_ (zip [0..] rowList) $ \(colIndex, _) -> 
@@ -438,8 +483,8 @@ main = do
                                 (Vector2 0 0) 0 white
                           )-}
                   )
-                return (newState, GameScreen)
+                return (newState, newScreen)
           )
-          (initialState, initialScreen) -- Estado inicial e tela inicial
+          (initialState, initialScreen)
     )
 
