@@ -126,9 +126,78 @@ Com essas instruções, você deve estar pronto para compilar e jogar Campo Mina
 
 
 ## Uso 
-Explique como usar seu projeto.
-Procure ilustrar em passos, com apoio de telas do software, seja com base na interface gráfica, seja com base no terminal.
-Nessa seção, deve-se revelar de forma clara sobre o funcionamento do software.
+
+Este guia de uso do Campo Minado em Haskell mostra como iniciar e jogar o projeto, com uma visão detalhada das telas e passos necessários. Para começar, basta seguir os passos abaixo:
+
+### Passo 1: Executar o Projeto
+No terminal, execute o comando:
+
+```bash
+cabal run CampoMinado
+```
+Esse comando compila e executa o projeto. Em seguida, a interface gráfica será aberta e o jogo será iniciado.
+
+<img src="assets/prints/Captura de tela 2024-11-11 012848.png" alt="Descrição da imagem" width="400" />
+
+### Passo 2: Seleção da Estrutura de Busca
+A primeira tela exibida permitirá que você escolha a estrutura de busca para o jogo. Esta configuração define a forma como o campo é explorado, com opções como BFS (busca em largura) e DFS (busca em profundidade).
+
+<img src="assets/prints/Captura de tela 2024-11-11 013006.png" alt="Descrição da imagem" width="300" />
+
+Escolha a estrutura desejada para prosseguir para a próxima etapa.
+
+### Passo 3: Escolher o Tamanho do Grid
+Na próxima tela, defina o tamanho do grid (tabuleiro) em que o jogo será jogado. Escolha o tamanho de acordo com sua preferência e habilidade. Um grid maior oferece um desafio mais extenso, enquanto um menor é mais rápido de explorar.
+
+<img src="assets/prints/Captura de tela 2024-11-11 013019.png" alt="Descrição da imagem" width="300" />
+
+### Passo 4: Seleção da Dificuldade
+Após definir o tamanho do grid, será exibida a tela de seleção de dificuldade, com opções como Fácil, Normal e Difícil. Essa configuração ajusta o número de bombas no campo, tornando o jogo mais ou menos desafiador.
+
+<img src="assets/prints/Captura de tela 2024-11-11 013032.png" alt="Descrição da imagem" width="300" />
+
+### Passo 5: Início do Jogo
+Agora, o jogo está pronto para começar! Ao iniciar o jogo, um cronômetro no canto superior esquerdo da tela marca o tempo decorrido desde o início, adicionando um elemento de desafio adicional.
+
+<img src="assets/prints/Captura de tela 2024-11-11 013101.png" alt="Descrição da imagem" width="300" />
+
+### Como Jogar
+
+- Selecionar Célula: Clique com o botão esquerdo do mouse para abrir uma célula. Se a célula contiver uma bomba, o jogo termina, revelando todas as bombas no campo.
+- Colocar Bandeira: Clique com o botão direito do mouse para marcar uma célula com uma bandeira, indicando onde você acredita que há uma bomba. Clique novamente com o botão direito para remover a bandeira.
+
+<img src="assets/prints/Captura de tela 2024-11-11 013159.png" alt="Descrição da imagem" width="300" />
+
+### Passo 6: Fim de Jogo
+O jogo termina de duas maneiras:
+
+- Vitória: Quando todas as células livres são abertas sem explodir nenhuma bomba, uma mensagem de vitória aparece na tela.
+- Derrota: Se uma célula com bomba é selecionada, uma mensagem de derrota aparece, e todas as bombas são reveladas.
+
+Em ambos os casos, duas opções são exibidas para o usuário:
+
+- Reiniciar: Comece uma nova partida com as mesmas configurações (estrutura de busca, tamanho do grid e dificuldade).
+- Menu Inicial: Retorne à tela inicial de seleção de estrutura de busca para começar um novo jogo com configurações diferentes.
+
+<img src="assets/prints/Captura de tela 2024-11-11 013240.png" alt="Descrição da imagem" width="300" />
+<img src="assets/prints/Captura de tela 2024-11-11 013223.png" alt="Descrição da imagem" width="300" />
+
+
+### Rodando Bot
+
+Para rodar o Bot basta escrever o seguinte comando no terminal:
+
+```bash
+cabal run CampoMinadoBot
+```
+
+<img src="assets/prints/Captura de tela 2024-11-11 012903.png" alt="Descrição da imagem" width="400" />
+
+Depois de executar o comando, o output do código será algo como:
+
+<img src="assets/prints/Captura de tela 2024-11-11 013258.png" alt="Descrição da imagem" width="300" />
+
+O Bot tenta resolver o Campo Minado utilizando probabilidade.
 
 
 ## Vídeo
@@ -143,8 +212,13 @@ Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 | :-------------------------: | ---------------------------------------------------------------------------- | :----------------------------------------------------------------------------: | :-------------------------------------: |
 |           Fulano            | Programação dos Fatos da Base de Conhecimento Lógica                         |                                      Boa                                       |          Commit tal (com link)          |
 | Abdul hannan |    Criação do documento Guia.md para detalhar e explicar melhor todos os módulos e funções do projeto e criacao do bot de toma decisões basedo nas probabilidades, escolhendo células com menor risco (<0.3) e usa BFS para explorar células| Excelente   |   |
+<<<<<<< HEAD
+|    Arthur de Melo Viana     | Implementação da BFS Recursiva e da estrutura base do grafo e dos nós e de funções básicas para a grid como o contador de bombas adjacentes à celula e updates nos nós. Implementação das telas de fim de jogo e da visualização das bombas ao ganhar/perder.     |  Excelente | [Versão Inicial das Estruturas e da BFS](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/93f5b069567541163f32634e51ec0ee852c60bf8), [Implementação e correção da BFS recursiva](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/a2694f0995dc957ddb1e48410b8205cdc3a4f544) e [Adiciona telas de fim de jogo e revelação das bombas na interface](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/pull/17/commits/a3223e69b95db2e32404163af45dc34a2b278228) |
+|       Deivid Carvalho       |   |  |   |
+=======
 |    Arthur de Melo Viana     | Implementação da BFS Recursiva, da estrutura base do grafo e dos nós e de funções básicas para a grid como o contador de bombas adjacentes à celula e updates nos nós. Implementação das telas de fim de jogo e da visualização das bombas ao ganhar/perder.     |  Excelente | [Versão Inicial das Estruturas e da BFS](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/93f5b069567541163f32634e51ec0ee852c60bf8), [Implementação e correção da BFS recursiva](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/a2694f0995dc957ddb1e48410b8205cdc3a4f544) e [Adiciona telas de fim de jogo e revelação das bombas na interface](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/pull/17/commits/a3223e69b95db2e32404163af45dc34a2b278228) |
 |       Deivid Carvalho       | Implementação da funcionalidade de adicionar e retirar flags  |  Excelente |   |
+>>>>>>> 1f0bb5b0ba509a50fd609832472b385dbdf4360b
 | Felipe de Jesus Rodrigues |  Geração de bombas aleátoria para cada dificuldade e tamanho de tabuleiro. Tela de seleção de dificuldade.  |  Excelente  | [Geração de bombas aleátoria para cada dificuldade e tamanho de tabuleiro](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/8d3282f7ae9a6ec657430fa2202ea882dfea59fd); [Tela de seleção de dificuldade](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/96f9fb93655bc39be974079a1527b9b75176fa8c) |
 |  Levi de Oliveira Queiroz   |  Implementação do botão de Menu Inicial no fim do jogo e a parada do cronômetro                                                                            |   Regular                                                                             |   [Time stop when player lose or win](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/232116c396fc99c7f8874eb1f5bffabb3e109b37) <br> [Menu Inicial returns to SetStructureMenu](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/683df7d89eab6ec35f74da5cf52a978a407c044c)                                     |
 |    Matheus Fonseca Sousa    |    Implementação das interações com mouse na interface do projeto utilizando algumas funções da biblioteca Raylib  | Boa |   [fc55305](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/fc55305cf02c9b3078a1ebd669e9830a0f04d7e8) |                                                       |                                         |
