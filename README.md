@@ -11,7 +11,7 @@
 | 21/1029147 | [Arthur de Melo Viana](https://github.com/arthurmlv)	|
 | 19/0026758 | [Deivid Carvalho](https://github.com/deivid-a1) |	
 | 21/1062867 | [Felipe de Jesus Rodrigues](https://github.com/felipeJRdev) |
-| 17/0108341 | [Levi de Oliveira Queiroz]() |	
+| 17/0108341 | [Levi de Oliveira Queiroz](https://github.com/LeviQ27) |	
 | 17/0111059 | [Matheus Fonseca Sousa](https://github.com/gatotabaco) |	
 | 19/0093331 | [Matheus Costa Gomes](https://github.com/mc-gomes) |	
 | 21/2005444 | [Pedro fonseca Cruz]()	|
