@@ -326,9 +326,13 @@ main = do
                                 row < length (state'grid state) &&
                                 col < length (head (state'grid state))
                                 
-                 -- Atualizar o tempo
-                currentTimeUTC <- getCurrentTime
-                let currentTime = floor $ diffUTCTime currentTimeUTC (state'startTime state)
+                 -- Atualizar o tempo se o jogo não acabou
+
+                currentTime <- if state'finished state
+                                    then return (state'currentTime state)
+                                    else do
+                                        currentTimeUTC <- getCurrentTime
+                                        return $ floor $ diffUTCTime currentTimeUTC (state'startTime state)
 
                 let stateWithTime = state { state'currentTime = currentTime }
 
@@ -428,6 +432,7 @@ main = do
                       drawText "Reiniciar" (buttonX + 10) (buttonY + 8) 20 black
                       drawRectangle menuButtonX menuButtonY menuButtonWidth menuButtonHeight white
                       drawText "Menu Inicial" (menuButtonX + 15) (menuButtonY + 8) 20 black
+
                     
                     -- Campo invisível, debug apenas
                     {-forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
