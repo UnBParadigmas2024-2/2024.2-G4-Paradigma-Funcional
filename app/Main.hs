@@ -458,10 +458,10 @@ main = do
                       if (state'cnt newState) == (state'win newState)
                         then do
                           drawRectangle centerXInt centerYInt screenWidth screenHeight (Color 200 255 200 180)
-                          drawText "Ganhou!!" (centerXInt + 20) (centerYInt + 20) 30 (Color 0 128 0 255)
+                          drawText "Ganhou!!" (centerXInt + 100) (centerYInt + 80) 30 (Color 0 128 0 255)
                         else when (state'lose newState) $ do
                           drawRectangle centerXInt centerYInt screenWidth screenHeight (Color 255 200 200 180)
-                          drawText "Perdeu!!" (centerXInt + 20) (centerYInt + 20) 30 (Color 139 0 0 255)
+                          drawText "Perdeu!!" (centerXInt + 100) (centerYInt + 80) 30 (Color 139 0 0 255)
 
                     -- Campo invisível, debug apenas
                     {-forM_ (zip [0..] (state'grid newState)) $ \(rowIndex, rowList) -> 
