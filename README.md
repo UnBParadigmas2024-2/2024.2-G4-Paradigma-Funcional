@@ -156,3 +156,5 @@ Para o futuro, planejamos otimizar os algoritmos de busca e explorar novas abord
 ## Fontes
 
 - [Exemplo de imagem h-raylib](https://github.com/Anut-py/h-raylib/tree/master/examples/basic-images)
+- [Assets do Campo Minado](https://github.com/BrandonDusseau/minesweeper-classic)
+- [Asset do Botão](https://pauboeg.itch.io/ui-starter-pack?download)
