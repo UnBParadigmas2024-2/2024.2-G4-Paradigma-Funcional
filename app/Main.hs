@@ -5,6 +5,9 @@ module Main where
 -- Assets do campo minado
 -- https://github.com/BrandonDusseau/minesweeper-classic
 
+-- Asset do botãp (UI Starter Pack)
+-- https://pauboeg.itch.io/ui-starter-pack?download
+
 import Control.Monad (forM_, foldM, when)  -- Adicionar 'when'
 import Raylib.Core.Shapes (drawRectangle)  -- Para desenhar o retângulo
 import Raylib.Core.Text (drawText)  -- Para desenhar texto
