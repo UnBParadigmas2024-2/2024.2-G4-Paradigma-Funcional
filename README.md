@@ -28,7 +28,6 @@ Capriche nessa seção, pois ela é a primeira a ser lida pelos interessados no 
 ## Screenshots
 Adicione 2 ou mais screenshots do projeto em termos de interface e/ou funcionamento.
 
-
 ## Execução
 **Linguagens**: [Haskell](https://www.haskell.org/downloads/)
 
@@ -70,7 +69,12 @@ cabal build
 
 Após a construção do projeto, execute o jogo com o comando:
 ```bash
-cabal run
+cabal run CampoMinado
+```
+
+Para rodar no modo bot, execute:
+```bash
+cabal run CampoMinadoBot
 ```
 
 ### Executando o Projeto no Linux e macOS
@@ -89,7 +93,12 @@ cabal build
 
 Após o build, inicie o jogo com:
 ```bash
-cabal run
+cabal run CampoMinado
+```
+
+Para rodar no modo bot, execute:
+```bash
+cabal run CampoMinadoBot
 ```
 
 ### Problemas Comuns
@@ -125,7 +134,7 @@ Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 | Abdul hannan |    Criação do documento Guia.md para detalhar e explicar melhor todos os módulos e funções do projeto e criacao do bot de toma decisões basedo nas probabilidades, escolhendo células com menor risco (<0.3) e usa BFS para explorar células| Excelente   |   |
 |    Arthur de Melo Viana     |                                                                              |                                                                                |                                         |
 |       Deivid Carvalho       |                                                                              |                                                                                |                                         |
-|  Felipe de Jesus Rodrigues  |                                                                              |                                                                                |                                         |
+| Felipe de Jesus Rodrigues |  Geração de bombas aleátoria para cada dificuldade e tamanho de tabuleiro. Tela de seleção de dificuldade.  |  Excelente  | [Geração de bombas aleátoria para cada dificuldade e tamanho de tabuleiro](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/8d3282f7ae9a6ec657430fa2202ea882dfea59fd); [Tela de seleção de dificuldade](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/96f9fb93655bc39be974079a1527b9b75176fa8c) |
 |  Levi de Oliveira Queiroz   |                                                                              |                                                                                |                                         |
 |    Matheus Fonseca Sousa    |    Implementação das interações com mouse na interface do projeto utilizando algumas funções da biblioteca Raylib  | Boa |   [fc55305](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/commit/fc55305cf02c9b3078a1ebd669e9830a0f04d7e8) |                                                       |                                         |
 |     Matheus Costa Gomes     | Implementação da funcionalidade de inserir bandeira e organização de código  |  Excelente  | [PR #5](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/pull/5) <br> [PR #11](https://github.com/UnBParadigmas2024-2/2024.2_G4_Funcional_CampoMinado/pull/11)  |	
