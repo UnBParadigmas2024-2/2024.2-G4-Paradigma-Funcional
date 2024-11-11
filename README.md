@@ -195,7 +195,7 @@ cabal run CampoMinadoBot
 
 Depois de executar o comando, o output do código será algo como:
 
-<img src="assets/prints/Captura de tela 2024-11-11 013258.png" alt="Descrição da imagem" width="300" />
+<img src="assets/prints/bot_print.png" alt="Descrição da imagem" width="300" />
 
 O Bot tenta resolver o Campo Minado utilizando probabilidade.
 
@@ -241,6 +241,9 @@ Cada membro contribuiu significativamente para a conclusão do projeto. Contudo,
 
 ### Trabalhos Futuros
 Para o futuro, planejamos otimizar os algoritmos de busca e explorar novas abordagens para a resolução do jogo, podendo incluir a implementação de um tipo diferente de busca. Além disso, estamos estudando formas de melhorar a performance geral do projeto e a interação entre os diferentes módulos funcionais.
+
+### Mais Detalhes
+Para um guia completo de módulos, funções, e organização do projeto, consulte nosso [guia.md](guia.md), onde descrevemos as funções e a arquitetura do projeto em maior profundidade.
 
 ## Fontes
 
